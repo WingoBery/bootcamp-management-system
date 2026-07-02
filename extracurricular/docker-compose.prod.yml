@@ -1,0 +1,26 @@
+# Production-oriented compose overlay for AWS EC2 deployment.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+services:
+  postgres:
+    ports: []
+
+  gateway:
+    ports:
+      - "127.0.0.1:${GATEWAY_PORT:-8000}:8000"
+
+  frontend:
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
+
+  user_service:
+    ports: []
+
+  bootcamp_service:
+    ports: []
+
+  registration_service:
+    ports: []
+
+  showcase_service:
+    ports: []

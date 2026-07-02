@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: bootcamp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+      containers:
+        - name: user-service
+          image: bootcamp-user-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: USER_DATABASE_URL
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bootcamp-secrets
+                  key: JWT_SECRET_KEY
+            - name: JWT_ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: JWT_ALGORITHM
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: ACCESS_TOKEN_EXPIRE_MINUTES
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: LOG_LEVEL
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: ENVIRONMENT
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: bootcamp
+spec:
+  selector:
+    app: user-service
+  ports:
+    - port: 8000
+      targetPort: 8000

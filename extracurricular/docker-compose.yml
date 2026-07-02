@@ -1,91 +1,184 @@
-version: "3.9"
+networks:
+  bootcamp-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
 
 services:
   postgres:
     image: postgres:16-alpine
+    restart: unless-stopped
+    networks:
+      - bootcamp-net
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PUBLISH_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   user_service:
-    build: ./services/user_service
+    build:
+      context: .
+      dockerfile: services/user_service/Dockerfile
+    restart: unless-stopped
+    networks:
+      - bootcamp-net
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/user_db
-      JWT_SECRET_KEY: change-me-in-production
-      JWT_ALGORITHM: HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      DATABASE_URL: ${USER_DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/user_db}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
       postgres:
         condition: service_healthy
     ports:
-      - "8001:8000"
+      - "${USER_SERVICE_PORT:-8001}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
   bootcamp_service:
-    build: ./services/bootcamp_service
+    build:
+      context: .
+      dockerfile: services/bootcamp_service/Dockerfile
+    restart: unless-stopped
+    networks:
+      - bootcamp-net
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bootcamp_db
+      DATABASE_URL: ${BOOTCAMP_DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/bootcamp_db}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
       postgres:
         condition: service_healthy
     ports:
-      - "8002:8000"
+      - "${BOOTCAMP_SERVICE_PORT:-8002}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
   registration_service:
-    build: ./services/registration_service
+    build:
+      context: .
+      dockerfile: services/registration_service/Dockerfile
+    restart: unless-stopped
+    networks:
+      - bootcamp-net
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/registration_db
-      BOOTCAMP_SERVICE_URL: http://bootcamp_service:8000
+      DATABASE_URL: ${REGISTRATION_DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/registration_db}
+      BOOTCAMP_SERVICE_URL: ${BOOTCAMP_SERVICE_URL:-http://bootcamp_service:8000}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
       postgres:
         condition: service_healthy
       bootcamp_service:
-        condition: service_started
+        condition: service_healthy
     ports:
-      - "8003:8000"
+      - "${REGISTRATION_SERVICE_PORT:-8003}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
   showcase_service:
-    build: ./services/showcase_service
+    build:
+      context: .
+      dockerfile: services/showcase_service/Dockerfile
+    restart: unless-stopped
+    networks:
+      - bootcamp-net
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/showcase_db
+      DATABASE_URL: ${SHOWCASE_DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/showcase_db}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
       postgres:
         condition: service_healthy
     ports:
-      - "8004:8000"
+      - "${SHOWCASE_SERVICE_PORT:-8004}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
   gateway:
-    build: ./gateway
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    restart: unless-stopped
+    networks:
+      - bootcamp-net
     environment:
-      USER_SERVICE_URL: http://user_service:8000
-      BOOTCAMP_SERVICE_URL: http://bootcamp_service:8000
-      REGISTRATION_SERVICE_URL: http://registration_service:8000
-      SHOWCASE_SERVICE_URL: http://showcase_service:8000
+      USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user_service:8000}
+      BOOTCAMP_SERVICE_URL: ${BOOTCAMP_SERVICE_URL:-http://bootcamp_service:8000}
+      REGISTRATION_SERVICE_URL: ${REGISTRATION_SERVICE_URL:-http://registration_service:8000}
+      SHOWCASE_SERVICE_URL: ${SHOWCASE_SERVICE_URL:-http://showcase_service:8000}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
-      - user_service
-      - bootcamp_service
-      - registration_service
-      - showcase_service
+      user_service:
+        condition: service_healthy
+      bootcamp_service:
+        condition: service_healthy
+      registration_service:
+        condition: service_healthy
+      showcase_service:
+        condition: service_healthy
     ports:
-      - "8000:8000"
+      - "${GATEWAY_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    restart: unless-stopped
+    networks:
+      - bootcamp-net
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     depends_on:
-      - gateway
+      gateway:
+        condition: service_healthy
     ports:
-      - "3000:3000"
-
-volumes:
-  postgres_data:
+      - "${FRONTEND_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bootcamp-service
+  namespace: bootcamp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bootcamp-service
+  template:
+    metadata:
+      labels:
+        app: bootcamp-service
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        fsGroup: 999
+      containers:
+        - name: bootcamp-service
+          image: bootcamp-bootcamp-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: BOOTCAMP_DATABASE_URL
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: LOG_LEVEL
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: bootcamp-config
+                  key: ENVIRONMENT
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bootcamp-service
+  namespace: bootcamp
+spec:
+  selector:
+    app: bootcamp-service
+  ports:
+    - port: 8000
+      targetPort: 8000

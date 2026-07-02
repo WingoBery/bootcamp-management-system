@@ -1,0 +1,27 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+myvenv/
+extracurricular/myvenv/
+
+# Node / Next.js
+node_modules/
+.next/
+dist/
+build/
+
+# OS & logs
+.DS_Store
+*.log
+*.pem
+
+# Docker / local data
+postgres_data/

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bootcamp-config
+  namespace: bootcamp
+data:
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  JWT_ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+  POSTGRES_USER: "postgres"
+  POSTGRES_DB: "postgres"
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  USER_SERVICE_URL: "http://user-service:8000"
+  BOOTCAMP_SERVICE_URL: "http://bootcamp-service:8000"
+  REGISTRATION_SERVICE_URL: "http://registration-service:8000"
+  SHOWCASE_SERVICE_URL: "http://showcase-service:8000"
+  CORS_ORIGINS: "https://your-domain.com"
+  NEXT_PUBLIC_API_URL: "https://your-domain.com/api"
+  USER_DATABASE_URL: "postgresql://postgres:CHANGE_ME@postgres:5432/user_db"
+  BOOTCAMP_DATABASE_URL: "postgresql://postgres:CHANGE_ME@postgres:5432/bootcamp_db"
+  REGISTRATION_DATABASE_URL: "postgresql://postgres:CHANGE_ME@postgres:5432/registration_db"
+  SHOWCASE_DATABASE_URL: "postgresql://postgres:CHANGE_ME@postgres:5432/showcase_db"

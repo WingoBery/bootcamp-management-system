@@ -1,19 +1,24 @@
 import os
+from contextlib import asynccontextmanager
 from typing import Dict
 
 import httpx
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from jose import JWTError, jwt
 
-app = FastAPI(
-    title="Bootcamp Management Gateway",
-    description="Single entry point for the microservices ecosystem",
-    version="1.0.0",
-)
+from shared.config import validate_production_secrets
+from shared.health import create_gateway_health_router
+from shared.logging_setup import RequestLoggingMiddleware, register_exception_handlers, setup_logging
+
+SERVICE_NAME = "gateway"
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+logger = setup_logging(SERVICE_NAME, LOG_LEVEL)
 
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 
 SERVICE_URLS: Dict[str, str] = {
     "/api/v1/auth": os.getenv("USER_SERVICE_URL", "http://user_service:8000"),
@@ -33,10 +38,39 @@ SERVICE_ROUTE_MAP: Dict[str, str] = {
 
 PROTECTED_PREFIXES = ["/api/v1/users", "/api/v1/bootcamps", "/api/v1/registrations", "/api/v1/showcases"]
 
+UPSTREAM_HEALTH_URLS = list({f"{url}/health" for url in SERVICE_URLS.values()})
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    validate_production_secrets()
+    logger.info("%s starting up", SERVICE_NAME)
+    yield
+    logger.info("%s shutting down", SERVICE_NAME)
+
+
+app = FastAPI(
+    title="Bootcamp Management Gateway",
+    description="Single entry point for the microservices ecosystem",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in CORS_ORIGINS if origin.strip()],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.add_middleware(RequestLoggingMiddleware, logger=logger)
+register_exception_handlers(app, logger)
+app.include_router(create_gateway_health_router(SERVICE_NAME, UPSTREAM_HEALTH_URLS))
+
 
 @app.get("/")
-def health_check():
-    return {"status": "ok", "service": "gateway"}
+def index():
+    return {"status": "ok", "service": SERVICE_NAME}
 
 
 def _validate_token(authorization: str | None):
@@ -90,6 +124,7 @@ async def proxy_request(request: Request, path: str):
                 content=body,
             )
         except httpx.RequestError as exc:
+            logger.error("Upstream request failed url=%s error=%s", target_url, exc)
             return JSONResponse(
                 status_code=503,
                 content={"detail": f"Upstream service unavailable: {exc}"},
@@ -97,6 +132,13 @@ async def proxy_request(request: Request, path: str):
 
     response_content = response.content
     response_headers = {
-        key: value for key, value in response.headers.items() if key.lower() not in {"content-length", "transfer-encoding"}
+        key: value
+        for key, value in response.headers.items()
+        if key.lower() not in {"content-length", "transfer-encoding"}
     }
-    return Response(content=response_content, status_code=response.status_code, headers=response_headers, media_type=response.headers.get("content-type"))
+    return Response(
+        content=response_content,
+        status_code=response.status_code,
+        headers=response_headers,
+        media_type=response.headers.get("content-type"),
+    )
