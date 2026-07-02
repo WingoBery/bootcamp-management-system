@@ -1,0 +1,6 @@
+fastapi
+uvicorn 
+sqlalchemy
+psycopg2-binary
+alembic #Used to manage creation of database tables by tracking migrations.
+python-dotenv #Used to Load key value pairs from .env file and loads them into the environment variable

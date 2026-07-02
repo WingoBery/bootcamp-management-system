@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user_service:
+    build: ./services/user_service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/user_db
+      JWT_SECRET_KEY: change-me-in-production
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+
+  bootcamp_service:
+    build: ./services/bootcamp_service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bootcamp_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8002:8000"
+
+  registration_service:
+    build: ./services/registration_service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/registration_db
+      BOOTCAMP_SERVICE_URL: http://bootcamp_service:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      bootcamp_service:
+        condition: service_started
+    ports:
+      - "8003:8000"
+
+  showcase_service:
+    build: ./services/showcase_service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/showcase_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8004:8000"
+
+  gateway:
+    build: ./gateway
+    environment:
+      USER_SERVICE_URL: http://user_service:8000
+      BOOTCAMP_SERVICE_URL: http://bootcamp_service:8000
+      REGISTRATION_SERVICE_URL: http://registration_service:8000
+      SHOWCASE_SERVICE_URL: http://showcase_service:8000
+    depends_on:
+      - user_service
+      - bootcamp_service
+      - registration_service
+      - showcase_service
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      - gateway
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
