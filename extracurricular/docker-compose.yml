@@ -27,6 +27,29 @@ services:
       retries: 5
       start_period: 10s
 
+  db_init:
+    image: postgres:16-alpine
+    restart: "no"
+    networks:
+      - bootcamp-net
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGUSER: ${POSTGRES_USER:-postgres}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        for db in user_db bootcamp_db registration_db showcase_db; do
+          echo "Ensuring database exists: $$db"
+          psql -h postgres -U "$$PGUSER" -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$$db'" | grep -q 1 \
+            || psql -h postgres -U "$$PGUSER" -d postgres -c "CREATE DATABASE \"$$db\""
+        done
+        echo "All service databases are ready"
+
   user_service:
     build:
       context: .
@@ -44,14 +67,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      db_init:
+        condition: service_completed_successfully
     ports:
       - "${USER_SERVICE_PORT:-8001}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
 
   bootcamp_service:
     build:
@@ -67,14 +92,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      db_init:
+        condition: service_completed_successfully
     ports:
       - "${BOOTCAMP_SERVICE_PORT:-8002}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
 
   registration_service:
     build:
@@ -91,16 +118,18 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      db_init:
+        condition: service_completed_successfully
       bootcamp_service:
         condition: service_healthy
     ports:
       - "${REGISTRATION_SERVICE_PORT:-8003}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
 
   showcase_service:
     build:
@@ -116,14 +145,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      db_init:
+        condition: service_completed_successfully
     ports:
       - "${SHOWCASE_SERVICE_PORT:-8004}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
 
   gateway:
     build:
@@ -155,10 +186,10 @@ services:
       - "${GATEWAY_PORT:-8000}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   frontend:
     build:

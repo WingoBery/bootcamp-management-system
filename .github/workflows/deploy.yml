@@ -38,12 +38,20 @@ jobs:
               echo "========== DEPLOYMENT FAILED =========="
               echo "Compose directory: ${COMPOSE_DIR:-unknown}"
               docker compose ${COMPOSE_ARGS} ps || true
-              echo "---------- gateway logs ----------"
-              docker compose ${COMPOSE_ARGS} logs --tail=100 gateway || true
-              echo "---------- user_service logs ----------"
-              docker compose ${COMPOSE_ARGS} logs --tail=100 user_service || true
               echo "---------- postgres logs ----------"
               docker compose ${COMPOSE_ARGS} logs --tail=100 postgres || true
+              echo "---------- db_init logs ----------"
+              docker compose ${COMPOSE_ARGS} logs --tail=100 db_init || true
+              echo "---------- user_service logs ----------"
+              docker compose ${COMPOSE_ARGS} logs --tail=100 user_service || true
+              echo "---------- bootcamp_service logs ----------"
+              docker compose ${COMPOSE_ARGS} logs --tail=100 bootcamp_service || true
+              echo "---------- registration_service logs ----------"
+              docker compose ${COMPOSE_ARGS} logs --tail=100 registration_service || true
+              echo "---------- showcase_service logs ----------"
+              docker compose ${COMPOSE_ARGS} logs --tail=100 showcase_service || true
+              echo "---------- gateway logs ----------"
+              docker compose ${COMPOSE_ARGS} logs --tail=100 gateway || true
               echo "---------- frontend logs ----------"
               docker compose ${COMPOSE_ARGS} logs --tail=100 frontend || true
             }
@@ -111,6 +119,9 @@ jobs:
               exit 1
             fi
 
+            export POSTGRES_PASSWORD
+            ENCODED_PASSWORD=$(python3 -c "import os, urllib.parse; print(urllib.parse.quote(os.environ['POSTGRES_PASSWORD'], safe=''))")
+
             printf '%s\n' \
               "POSTGRES_USER=${POSTGRES_USER}" \
               "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" \
@@ -124,10 +135,10 @@ jobs:
               "BOOTCAMP_SERVICE_URL=http://bootcamp_service:8000" \
               "REGISTRATION_SERVICE_URL=http://registration_service:8000" \
               "SHOWCASE_SERVICE_URL=http://showcase_service:8000" \
-              "USER_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/user_db" \
-              "BOOTCAMP_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/bootcamp_db" \
-              "REGISTRATION_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/registration_db" \
-              "SHOWCASE_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/showcase_db" \
+              "USER_DATABASE_URL=postgresql://${POSTGRES_USER}:${ENCODED_PASSWORD}@postgres:5432/user_db" \
+              "BOOTCAMP_DATABASE_URL=postgresql://${POSTGRES_USER}:${ENCODED_PASSWORD}@postgres:5432/bootcamp_db" \
+              "REGISTRATION_DATABASE_URL=postgresql://${POSTGRES_USER}:${ENCODED_PASSWORD}@postgres:5432/registration_db" \
+              "SHOWCASE_DATABASE_URL=postgresql://${POSTGRES_USER}:${ENCODED_PASSWORD}@postgres:5432/showcase_db" \
               "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" \
               "CORS_ORIGINS=${CORS_ORIGINS}" \
               "GATEWAY_PORT=8000" \
@@ -141,19 +152,19 @@ jobs:
 
             echo "Waiting for gateway /health endpoint..."
             HEALTH_OK=false
-            for i in $(seq 1 30); do
+            for i in $(seq 1 45); do
               if curl -fsS http://127.0.0.1:8000/health; then
                 echo ""
                 echo "Deployment verified successfully."
                 HEALTH_OK=true
                 break
               fi
-              echo "Attempt ${i}/30: gateway not ready yet, retrying in 5s..."
+              echo "Attempt ${i}/45: gateway not ready yet, retrying in 5s..."
               sleep 5
             done
 
             if [ "$HEALTH_OK" != "true" ]; then
-              echo "ERROR: Gateway health check failed after 30 attempts."
+              echo "ERROR: Gateway health check failed after 45 attempts."
               log_failure
               exit 1
             fi

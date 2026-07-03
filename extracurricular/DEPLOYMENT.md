@@ -201,7 +201,9 @@ curl -v http://127.0.0.1:8000/health
 | `docker compose` not found | `sudo apt install -y docker-compose-plugin` |
 | Permission denied on Docker | `sudo usermod -aG docker ubuntu`, then re-login |
 | Gateway unhealthy | Check `JWT_SECRET_KEY` is set and not the default |
-| Postgres unhealthy | Check `POSTGRES_PASSWORD` in `.env`; may need `docker compose down -v` on first init |
+| Postgres DB missing on existing volume | Fixed by `db_init` service — creates `bootcamp_db` etc. if missing |
+| `bootcamp_service` unhealthy | Check logs: `docker compose logs bootcamp_service --tail=100` |
+| Password special characters in URL | Deploy workflow URL-encodes password in `DATABASE_URL` |
 | Frontend build fails | Verify `NEXT_PUBLIC_API_URL` secret is set |
 | Health check timeout | Services may need more startup time — check `docker compose ps` for `(unhealthy)` |
 | Out of disk space | `docker system prune -af` (removes unused images/containers) |
