@@ -231,18 +231,24 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 ## Nginx Setup (Public Access)
 
-With `docker-compose.prod.yml`, expose the app publicly through Nginx:
+See **[deploy/nginx/README.md](deploy/nginx/README.md)** for full instructions.
+
+Quick install on EC2:
 
 ```bash
-sudo apt install -y nginx
-sudo cp deploy/nginx/proxy-params.conf /etc/nginx/snippets/proxy-params.conf
-sudo cp deploy/nginx/bootcamp.conf /etc/nginx/sites-available/bootcamp
-# Edit server_name to 15.188.62.236 or your domain
-sudo ln -s /etc/nginx/sites-available/bootcamp /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
+cd /home/ubuntu/bootcamp-management-system
+git pull origin main
+bash extracurricular/deploy/nginx/install-nginx.sh
 ```
 
-Ensure EC2 security group allows inbound **80** and **443** (not 8000/3000 directly).
+Ensure EC2 security group allows inbound **TCP 80**.
+
+After Nginx is live, update GitHub Secrets and push to `main`:
+
+| Secret | Value |
+|--------|-------|
+| `NEXT_PUBLIC_API_URL` | `http://15.188.62.236/api` |
+| `CORS_ORIGINS` | `http://15.188.62.236` |
 
 ---
 
@@ -253,7 +259,8 @@ Ensure EC2 security group allows inbound **80** and **443** (not 8000/3000 direc
 curl http://127.0.0.1:8000/health
 
 # From your machine (via Nginx)
-curl http://15.188.62.236/api/health
+curl http://15.188.62.236/health
+curl http://15.188.62.236/
 ```
 
 Expected response:
