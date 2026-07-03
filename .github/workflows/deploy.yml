@@ -165,6 +165,9 @@ jobs:
             fi
             docker compose ${COMPOSE_ARGS} ps
 
+            echo "Waiting for backend services to finish migrations and startup..."
+            sleep 90
+
             echo "Waiting for gateway /health endpoint..."
             HEALTH_OK=false
             for i in $(seq 1 45); do

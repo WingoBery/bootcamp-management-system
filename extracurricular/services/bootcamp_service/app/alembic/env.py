@@ -11,7 +11,9 @@ load_dotenv()
 
 config = context.config
 DATABASE_URL = os.getenv("DATABASE_URL")
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
+config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

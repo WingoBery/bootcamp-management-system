@@ -1,5 +1,8 @@
+import os
 import subprocess
 import sys
+
+from sqlalchemy import create_engine, inspect
 
 
 def main() -> None:
@@ -8,6 +11,11 @@ def main() -> None:
         sys.exit(1)
 
     table_name = sys.argv[1]
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        print("ERROR: DATABASE_URL is not set", file=sys.stderr)
+        sys.exit(1)
+
     print(f"Running alembic upgrade head (table marker: {table_name})...")
     result = subprocess.run(["alembic", "upgrade", "head"], check=False)
 
@@ -17,13 +25,12 @@ def main() -> None:
 
     print(f"Alembic upgrade failed with exit code {result.returncode}", file=sys.stderr)
 
-    from sqlalchemy import inspect
-
-    from database.connection import engine
-
+    engine = create_engine(database_url, pool_pre_ping=True)
     if inspect(engine).has_table(table_name):
         print(f"Table '{table_name}' already exists; stamping alembic revision as head")
-        subprocess.run(["alembic", "stamp", "head"], check=True)
+        stamp_result = subprocess.run(["alembic", "stamp", "head"], check=False)
+        if stamp_result.returncode != 0:
+            sys.exit(stamp_result.returncode)
         print("Alembic stamp head succeeded")
         return
 

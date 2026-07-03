@@ -1,13 +1,14 @@
 from contextlib import asynccontextmanager
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import httpx
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import text
-from sqlalchemy.engine import Engine
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine import Engine
 
 
-def create_health_router(service_name: str, engine: Optional[Engine] = None) -> APIRouter:
+def create_health_router(service_name: str, engine: Optional["Engine"] = None) -> APIRouter:
     router = APIRouter(tags=["health"])
 
     @router.get("/health")
@@ -22,6 +23,8 @@ def create_health_router(service_name: str, engine: Optional[Engine] = None) -> 
     def ready():
         if engine is None:
             return {"status": "ready", "service": service_name}
+
+        from sqlalchemy import text
 
         try:
             with engine.connect() as connection:
