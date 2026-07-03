@@ -45,6 +45,8 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 The production overlay binds gateway and frontend to localhost only (for Nginx reverse proxy).
 
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for full EC2 setup, GitHub Secrets, CI/CD details, and recovery steps.
+
 See `deploy/nginx/bootcamp.conf` for HTTPS-ready Nginx configuration.
 
 ## Kubernetes
@@ -53,19 +55,20 @@ Manifests are in `k8s/`. See `k8s/README.md` for apply order and configuration n
 
 ## CI/CD
 
-GitHub Actions workflow `.github/workflows/deploy-ec2.yml` deploys on push to `main`.
+GitHub Actions workflow [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) deploys on push to `main`.
 
 Required GitHub Secrets:
 
 | Secret | Description |
 |--------|-------------|
-| `EC2_HOST` | EC2 public IP or DNS |
-| `EC2_USER` | SSH user (e.g. `ubuntu`) |
-| `EC2_SSH_KEY` | Private SSH key |
-| `JWT_SECRET_KEY` | Production JWT secret |
+| `EC2_HOST` | EC2 public IP (`15.188.62.236`) or DNS |
+| `EC2_USER` | SSH user (`ubuntu`) |
+| `EC2_SSH_KEY` | Private SSH key PEM |
+| `POSTGRES_USER` | Database user (optional, defaults to `postgres`) |
 | `POSTGRES_PASSWORD` | Database password |
-| `NEXT_PUBLIC_API_URL` | Public API URL (e.g. `https://your-domain.com/api`) |
-| `CORS_ORIGINS` | Allowed CORS origins |
+| `JWT_SECRET_KEY` | Production JWT secret |
+| `NEXT_PUBLIC_API_URL` | Public API URL (e.g. `http://15.188.62.236/api`) |
+| `CORS_ORIGINS` | Allowed CORS origins (e.g. `http://15.188.62.236`) |
 
 ## Health Endpoints
 

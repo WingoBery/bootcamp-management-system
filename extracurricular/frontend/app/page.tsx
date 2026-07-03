@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from 'react';
+import { getApiUrl } from '../lib/config';
 
 const roles = ['student', 'supervisor', 'admin'];
+const apiUrl = getApiUrl();
 
 export default function HomePage() {
   const [selectedRole, setSelectedRole] = useState('student');
@@ -14,6 +16,9 @@ export default function HomePage() {
         <h1 className="mt-3 text-4xl font-semibold">Role-based workspace</h1>
         <p className="mt-3 max-w-2xl text-slate-300">
           A simple Next.js shell for student, supervisor, and admin workflows connected to the gateway.
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          API: <code className="text-cyan-400">{apiUrl}</code>
         </p>
       </header>
 

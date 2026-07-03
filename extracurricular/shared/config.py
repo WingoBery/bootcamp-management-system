@@ -17,6 +17,6 @@ def validate_production_secrets() -> None:
     if jwt_secret in ("", "change-me-in-production"):
         raise RuntimeError("JWT_SECRET_KEY must be set to a secure value in production")
 
-    postgres_password = os.getenv("POSTGRES_PASSWORD", "")
-    if postgres_password in ("", "postgres"):
+    postgres_password = os.getenv("POSTGRES_PASSWORD")
+    if postgres_password is not None and postgres_password in ("", "postgres"):
         raise RuntimeError("POSTGRES_PASSWORD must be changed in production")
