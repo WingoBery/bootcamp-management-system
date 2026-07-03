@@ -4,11 +4,21 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 import type { Showcase, User } from '../lib/types';
 import {
   ApiError,
+  alertErrorClass,
+  alertSuccessClass,
   buttonPrimaryClass,
+  emptyStateClass,
   formatDate,
   gradeShowcase,
   inputClass,
+  labelClass,
+  linkClass,
   listPendingShowcases,
+  loadingClass,
+  sectionClass,
+  sectionDescClass,
+  sectionTitleClass,
+  selectClass,
 } from '../lib/api';
 
 interface SupervisorDashboardProps {
@@ -55,7 +65,7 @@ export default function SupervisorDashboard({ user }: SupervisorDashboardProps) 
         evaluation,
         feedback,
       });
-      setMessage('Showcase graded successfully.');
+      setMessage('Grade saved.');
       setFeedback('');
       await loadData();
     } catch (err) {
@@ -66,78 +76,93 @@ export default function SupervisorDashboard({ user }: SupervisorDashboardProps) 
   }
 
   if (loading) {
-    return <p className="text-sm text-slate-400">Loading supervisor dashboard…</p>;
+    return (
+      <div className={loadingClass}>
+        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600" />
+        Loading
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-slate-400">Signed in as supervisor · {user.full_name}</p>
+      {error && <p className={alertErrorClass}>{error}</p>}
+      {message && <p className={alertSuccessClass}>{message}</p>}
 
-      {error && <p className="rounded-lg border border-red-900 bg-red-950/40 px-3 py-2 text-sm text-red-300">{error}</p>}
-      {message && (
-        <p className="rounded-lg border border-emerald-900 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-300">{message}</p>
-      )}
+      <section className={sectionClass}>
+        <h2 className={sectionTitleClass}>Review queue</h2>
+        <p className={sectionDescClass}>Projects waiting for a grade.</p>
 
-      <section className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-        <h3 className="text-lg font-semibold">Pending project reviews</h3>
-        <p className="mt-1 text-sm text-slate-400">
-          Submissions assigned to you or awaiting a grade appear here.
-        </p>
-
-        <div className="mt-4 space-y-4">
-          {pending.length === 0 && (
-            <p className="text-sm text-slate-400">No pending showcases at the moment.</p>
-          )}
+        <div className="mt-5 space-y-4">
+          {pending.length === 0 && <p className={emptyStateClass}>Nothing in the queue.</p>}
 
           {pending.map((showcase) => (
-            <div key={showcase.id} className="rounded-lg border border-slate-800 p-4">
-              <p className="font-medium">{showcase.project_title}</p>
+            <article key={showcase.id} className="rounded-md border border-gray-200 p-4">
+              <p className="font-medium text-gray-900">{showcase.project_title}</p>
               {showcase.project_url && (
-                <a href={showcase.project_url} target="_blank" rel="noreferrer" className="mt-1 block text-sm text-cyan-400 hover:underline">
+                <a href={showcase.project_url} target="_blank" rel="noreferrer" className={`${linkClass} mt-1 block`}>
                   {showcase.project_url}
                 </a>
               )}
-              {showcase.description && <p className="mt-2 text-sm text-slate-400">{showcase.description}</p>}
-              <p className="mt-2 text-xs text-slate-500">
-                Student #{showcase.student_id} · Bootcamp #{showcase.bootcamp_id} · Submitted {formatDate(showcase.submitted_at)}
+              {showcase.description && <p className="mt-2 text-sm text-gray-600">{showcase.description}</p>}
+              <p className="mt-2 text-xs text-gray-500">
+                Student #{showcase.student_id} · Bootcamp #{showcase.bootcamp_id} ·{' '}
+                {formatDate(showcase.submitted_at)}
               </p>
 
-              <form onSubmit={(event) => handleGrade(event, showcase.id)} className="mt-4 grid gap-3 md:grid-cols-3">
-                <input
-                  className={inputClass}
-                  type="number"
-                  min={0}
-                  max={100}
-                  step={0.1}
-                  value={marks}
-                  onChange={(e) => setMarks(e.target.value)}
-                  placeholder="Marks"
-                  required
-                />
-                <select className={inputClass} value={evaluation} onChange={(e) => setEvaluation(e.target.value)} required>
-                  <option value="pass">Pass</option>
-                  <option value="merit">Merit</option>
-                  <option value="distinction">Distinction</option>
-                  <option value="fail">Fail</option>
-                </select>
-                <input
-                  className={inputClass}
-                  placeholder="Feedback"
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  required
-                />
-                <div className="md:col-span-3">
-                  <button
-                    type="submit"
-                    disabled={gradingId === showcase.id}
-                    className={buttonPrimaryClass}
+              <form onSubmit={(event) => handleGrade(event, showcase.id)} className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div>
+                  <label htmlFor={`marks-${showcase.id}`} className={labelClass}>
+                    Marks
+                  </label>
+                  <input
+                    id={`marks-${showcase.id}`}
+                    className={inputClass}
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.1}
+                    value={marks}
+                    onChange={(e) => setMarks(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor={`evaluation-${showcase.id}`} className={labelClass}>
+                    Result
+                  </label>
+                  <select
+                    id={`evaluation-${showcase.id}`}
+                    className={selectClass}
+                    value={evaluation}
+                    onChange={(e) => setEvaluation(e.target.value)}
+                    required
                   >
-                    {gradingId === showcase.id ? 'Submitting grade…' : 'Submit grade'}
+                    <option value="pass">Pass</option>
+                    <option value="merit">Merit</option>
+                    <option value="distinction">Distinction</option>
+                    <option value="fail">Fail</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor={`feedback-${showcase.id}`} className={labelClass}>
+                    Feedback
+                  </label>
+                  <input
+                    id={`feedback-${showcase.id}`}
+                    className={inputClass}
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="sm:col-span-3">
+                  <button type="submit" disabled={gradingId === showcase.id} className={buttonPrimaryClass}>
+                    {gradingId === showcase.id ? 'Saving…' : 'Save grade'}
                   </button>
                 </div>
               </form>
-            </div>
+            </article>
           ))}
         </div>
       </section>

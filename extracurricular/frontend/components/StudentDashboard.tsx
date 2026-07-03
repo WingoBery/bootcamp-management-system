@@ -4,14 +4,25 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 import type { Bootcamp, Registration, Showcase, User } from '../lib/types';
 import {
   ApiError,
+  alertErrorClass,
+  alertSuccessClass,
   buttonPrimaryClass,
   buttonSecondaryClass,
+  emptyStateClass,
   formatDate,
   inputClass,
+  labelClass,
+  linkClass,
   listBootcamps,
   listStudentRegistrations,
   listStudentShowcases,
+  loadingClass,
   registerForBootcamp,
+  sectionClass,
+  sectionDescClass,
+  sectionTitleClass,
+  selectClass,
+  statusBadgeClass,
   submitShowcase,
 } from '../lib/api';
 
@@ -64,7 +75,7 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
     setError(null);
     try {
       await registerForBootcamp(user.id, bootcampIdValue);
-      setMessage('Successfully registered for bootcamp.');
+      setMessage('Registered successfully.');
       await loadData();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Registration failed');
@@ -85,7 +96,7 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
         project_url: projectUrl || undefined,
         description: projectDescription || undefined,
       });
-      setMessage('Project submitted successfully.');
+      setMessage('Project submitted.');
       setProjectTitle('');
       setProjectUrl('');
       setProjectDescription('');
@@ -97,128 +108,181 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
   }
 
   if (loading) {
-    return <p className="text-sm text-slate-400">Loading student dashboard…</p>;
+    return (
+      <div className={loadingClass}>
+        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600" />
+        Loading
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      {error && <p className="rounded-lg border border-red-900 bg-red-950/40 px-3 py-2 text-sm text-red-300">{error}</p>}
-      {message && (
-        <p className="rounded-lg border border-emerald-900 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-300">{message}</p>
-      )}
+      {error && <p className={alertErrorClass}>{error}</p>}
+      {message && <p className={alertSuccessClass}>{message}</p>}
 
-      <section className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-        <h3 className="text-lg font-semibold">Available bootcamps</h3>
-        <div className="mt-3 space-y-3">
-          {bootcamps.length === 0 && <p className="text-sm text-slate-400">No bootcamps available yet.</p>}
+      <section className={sectionClass}>
+        <h2 className={sectionTitleClass}>Bootcamps</h2>
+        <p className={sectionDescClass}>Open sessions you can enroll in.</p>
+        <div className="mt-5 divide-y divide-gray-100">
+          {bootcamps.length === 0 && <p className={emptyStateClass}>Nothing scheduled yet.</p>}
           {bootcamps.map((bootcamp) => (
-            <div key={bootcamp.id} className="rounded-lg border border-slate-800 p-3">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium">{bootcamp.title}</p>
-                  <p className="mt-1 text-sm text-slate-400">{bootcamp.description}</p>
-                  <p className="mt-2 text-xs text-slate-500">
-                    {bootcamp.location} · {formatDate(bootcamp.start_date)} – {formatDate(bootcamp.end_date)}
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Slots: {bootcamp.current_registrations}/{bootcamp.max_slots}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  disabled={registeredIds.has(bootcamp.id) || actionId === bootcamp.id}
-                  onClick={() => handleRegister(bootcamp.id)}
-                  className={buttonSecondaryClass}
-                >
-                  {registeredIds.has(bootcamp.id) ? 'Registered' : actionId === bootcamp.id ? 'Registering…' : 'Register'}
-                </button>
+            <div key={bootcamp.id} className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-gray-900">{bootcamp.title}</p>
+                <p className="mt-1 text-sm text-gray-600">{bootcamp.description}</p>
+                <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                  <div>
+                    <dt className="sr-only">Location</dt>
+                    <dd>{bootcamp.location}</dd>
+                  </div>
+                  <div>
+                    <dt className="sr-only">Dates</dt>
+                    <dd>
+                      {formatDate(bootcamp.start_date)} – {formatDate(bootcamp.end_date)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="sr-only">Capacity</dt>
+                    <dd>
+                      {bootcamp.current_registrations}/{bootcamp.max_slots} enrolled
+                    </dd>
+                  </div>
+                </dl>
               </div>
+              <button
+                type="button"
+                disabled={registeredIds.has(bootcamp.id) || actionId === bootcamp.id}
+                onClick={() => handleRegister(bootcamp.id)}
+                className={buttonSecondaryClass}
+              >
+                {registeredIds.has(bootcamp.id)
+                  ? 'Enrolled'
+                  : actionId === bootcamp.id
+                    ? 'Enrolling…'
+                    : 'Enroll'}
+              </button>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-        <h3 className="text-lg font-semibold">My registrations</h3>
-        <div className="mt-3 space-y-2">
-          {registrations.length === 0 && <p className="text-sm text-slate-400">You are not registered for any bootcamp yet.</p>}
+      <section className={sectionClass}>
+        <h2 className={sectionTitleClass}>My enrollments</h2>
+        <ul className="mt-4 space-y-2">
+          {registrations.length === 0 && <li className={emptyStateClass}>No enrollments yet.</li>}
           {registrations.map((registration) => {
             const bootcamp = bootcamps.find((item) => item.id === registration.bootcamp_id);
             return (
-              <div key={registration.id} className="rounded-lg border border-slate-800 px-3 py-2 text-sm">
-                <span className="font-medium">{bootcamp?.title ?? `Bootcamp #${registration.bootcamp_id}`}</span>
-                <span className="text-slate-400"> · {registration.status} · {formatDate(registration.registered_at)}</span>
-              </div>
+              <li
+                key={registration.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-gray-100 bg-gray-50 px-3 py-2.5 text-sm"
+              >
+                <span className="font-medium text-gray-900">
+                  {bootcamp?.title ?? `Bootcamp #${registration.bootcamp_id}`}
+                </span>
+                <span className="flex items-center gap-2 text-gray-500">
+                  <span className={statusBadgeClass}>{registration.status}</span>
+                  {formatDate(registration.registered_at)}
+                </span>
+              </li>
             );
           })}
-        </div>
+        </ul>
       </section>
 
-      <section className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-        <h3 className="text-lg font-semibold">Submit project showcase</h3>
-        <form onSubmit={handleSubmitShowcase} className="mt-3 grid gap-3 md:grid-cols-2">
-          <select
-            className={inputClass}
-            value={bootcampId}
-            onChange={(e) => setBootcampId(e.target.value)}
-            required
-          >
-            <option value="">Select enrolled bootcamp</option>
-            {registrations.map((registration) => {
-              const bootcamp = bootcamps.find((item) => item.id === registration.bootcamp_id);
-              return (
-                <option key={registration.id} value={registration.bootcamp_id}>
-                  {bootcamp?.title ?? `Bootcamp #${registration.bootcamp_id}`}
-                </option>
-              );
-            })}
-          </select>
-          <input
-            className={inputClass}
-            placeholder="Project title"
-            value={projectTitle}
-            onChange={(e) => setProjectTitle(e.target.value)}
-            required
-          />
-          <input
-            className={inputClass}
-            placeholder="Project URL (optional)"
-            value={projectUrl}
-            onChange={(e) => setProjectUrl(e.target.value)}
-          />
-          <input
-            className={inputClass}
-            placeholder="Description (optional)"
-            value={projectDescription}
-            onChange={(e) => setProjectDescription(e.target.value)}
-          />
-          <div className="md:col-span-2">
+      <section className={sectionClass}>
+        <h2 className={sectionTitleClass}>Submit a project</h2>
+        <p className={sectionDescClass}>For a bootcamp you&apos;re enrolled in.</p>
+        <form onSubmit={handleSubmitShowcase} className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="bootcampId" className={labelClass}>
+              Bootcamp
+            </label>
+            <select
+              id="bootcampId"
+              className={selectClass}
+              value={bootcampId}
+              onChange={(e) => setBootcampId(e.target.value)}
+              required
+            >
+              <option value="">Select bootcamp</option>
+              {registrations.map((registration) => {
+                const bootcamp = bootcamps.find((item) => item.id === registration.bootcamp_id);
+                return (
+                  <option key={registration.id} value={registration.bootcamp_id}>
+                    {bootcamp?.title ?? `Bootcamp #${registration.bootcamp_id}`}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="projectTitle" className={labelClass}>
+              Title
+            </label>
+            <input
+              id="projectTitle"
+              className={inputClass}
+              value={projectTitle}
+              onChange={(e) => setProjectTitle(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="projectUrl" className={labelClass}>
+              URL <span className="font-normal text-gray-400">(optional)</span>
+            </label>
+            <input
+              id="projectUrl"
+              className={inputClass}
+              value={projectUrl}
+              onChange={(e) => setProjectUrl(e.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="projectDescription" className={labelClass}>
+              Notes <span className="font-normal text-gray-400">(optional)</span>
+            </label>
+            <input
+              id="projectDescription"
+              className={inputClass}
+              value={projectDescription}
+              onChange={(e) => setProjectDescription(e.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2">
             <button type="submit" className={buttonPrimaryClass}>
-              Submit project
+              Submit
             </button>
           </div>
         </form>
       </section>
 
-      <section className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-        <h3 className="text-lg font-semibold">My showcases</h3>
-        <div className="mt-3 space-y-3">
-          {showcases.length === 0 && <p className="text-sm text-slate-400">No project submissions yet.</p>}
+      <section className={sectionClass}>
+        <h2 className={sectionTitleClass}>My projects</h2>
+        <div className="mt-4 space-y-3">
+          {showcases.length === 0 && <p className={emptyStateClass}>No submissions yet.</p>}
           {showcases.map((showcase) => (
-            <div key={showcase.id} className="rounded-lg border border-slate-800 p-3 text-sm">
-              <p className="font-medium">{showcase.project_title}</p>
+            <article key={showcase.id} className="rounded-md border border-gray-100 bg-gray-50 p-4">
+              <p className="font-medium text-gray-900">{showcase.project_title}</p>
               {showcase.project_url && (
-                <a href={showcase.project_url} target="_blank" rel="noreferrer" className="mt-1 block text-cyan-400 hover:underline">
+                <a href={showcase.project_url} target="_blank" rel="noreferrer" className={`${linkClass} mt-1 block`}>
                   {showcase.project_url}
                 </a>
               )}
-              <p className="mt-2 text-slate-400">
-                {showcase.marks != null
-                  ? `Graded: ${showcase.marks} · ${showcase.evaluation ?? ''}`
-                  : 'Awaiting supervisor review'}
+              <p className="mt-2 text-sm text-gray-600">
+                {showcase.marks != null ? (
+                  <>
+                    <span className={statusBadgeClass}>{showcase.evaluation ?? 'graded'}</span>
+                    <span className="ml-2">{showcase.marks} marks</span>
+                  </>
+                ) : (
+                  <span className={statusBadgeClass}>Pending review</span>
+                )}
               </p>
-              {showcase.feedback && <p className="mt-1 text-slate-500">Feedback: {showcase.feedback}</p>}
-            </div>
+              {showcase.feedback && <p className="mt-2 text-sm text-gray-500">{showcase.feedback}</p>}
+            </article>
           ))}
         </div>
       </section>

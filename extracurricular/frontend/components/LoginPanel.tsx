@@ -2,7 +2,17 @@
 
 import { FormEvent, useState } from 'react';
 import type { User, UserRole } from '../lib/types';
-import { ApiError, buttonPrimaryClass, buttonSecondaryClass, inputClass, login, register } from '../lib/api';
+import {
+  ApiError,
+  alertErrorClass,
+  buttonPrimaryClass,
+  inputClass,
+  labelClass,
+  login,
+  register,
+  sectionClass,
+  selectClass,
+} from '../lib/api';
 
 interface LoginPanelProps {
   onAuthenticated: (user: User) => void;
@@ -37,77 +47,94 @@ export default function LoginPanel({ onAuthenticated }: LoginPanelProps) {
     }
   }
 
+  const tabClass = (active: boolean) =>
+    `flex-1 border-b-2 pb-3 text-sm font-medium transition ${
+      active
+        ? 'border-indigo-600 text-indigo-600'
+        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+    }`;
+
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setMode('login')}
-          className={`rounded-full px-4 py-1.5 text-sm ${mode === 'login' ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-300'}`}
-        >
-          Login
+    <div className={sectionClass}>
+      <div className="flex gap-6 border-b border-gray-200">
+        <button type="button" onClick={() => setMode('login')} className={tabClass(mode === 'login')}>
+          Sign in
         </button>
-        <button
-          type="button"
-          onClick={() => setMode('register')}
-          className={`rounded-full px-4 py-1.5 text-sm ${mode === 'register' ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-300'}`}
-        >
+        <button type="button" onClick={() => setMode('register')} className={tabClass(mode === 'register')}>
           Register
         </button>
       </div>
 
-      <h2 className="mt-4 text-xl font-semibold">{mode === 'login' ? 'Sign in' : 'Create account'}</h2>
-      <p className="mt-1 text-sm text-slate-400">
-        {mode === 'login'
-          ? 'Use your bootcamp account credentials.'
-          : 'Register as a student, supervisor, or admin.'}
-      </p>
-
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {mode === 'register' && (
           <>
-            <input
-              className={inputClass}
-              placeholder="Full name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-            <select
-              className={inputClass}
-              value={role}
-              onChange={(e) => setRole(e.target.value as UserRole)}
-            >
-              {roles.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+            <div>
+              <label htmlFor="fullName" className={labelClass}>
+                Full name
+              </label>
+              <input
+                id="fullName"
+                className={inputClass}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="role" className={labelClass}>
+                Role
+              </label>
+              <select
+                id="role"
+                className={selectClass}
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+              >
+                {roles.map((item) => (
+                  <option key={item} value={item}>
+                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
           </>
         )}
-        <input
-          className={inputClass}
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          className={inputClass}
-          placeholder="Password"
-          type="password"
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        <div>
+          <label htmlFor="email" className={labelClass}>
+            Email
+          </label>
+          <input
+            id="email"
+            className={inputClass}
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-        <button type="submit" disabled={loading} className={buttonPrimaryClass}>
-          {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Register & sign in'}
+        <div>
+          <label htmlFor="password" className={labelClass}>
+            Password
+          </label>
+          <input
+            id="password"
+            className={inputClass}
+            type="password"
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        {error && <p className={alertErrorClass}>{error}</p>}
+
+        <button type="submit" disabled={loading} className={`${buttonPrimaryClass} w-full`}>
+          {loading ? 'Working…' : mode === 'login' ? 'Sign in' : 'Create account'}
         </button>
       </form>
     </div>

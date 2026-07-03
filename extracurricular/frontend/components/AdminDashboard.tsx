@@ -4,11 +4,19 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 import type { Bootcamp, User } from '../lib/types';
 import {
   ApiError,
+  alertErrorClass,
+  alertSuccessClass,
   buttonPrimaryClass,
   createBootcamp,
+  emptyStateClass,
   formatDate,
   inputClass,
+  labelClass,
   listBootcamps,
+  loadingClass,
+  sectionClass,
+  sectionDescClass,
+  sectionTitleClass,
 } from '../lib/api';
 
 interface AdminDashboardProps {
@@ -64,7 +72,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
         end_date: toIsoFromLocalInput(endDate),
         max_slots: Number(maxSlots),
       });
-      setMessage('Bootcamp created successfully.');
+      setMessage('Bootcamp created.');
       setTitle('');
       setDescription('');
       setLocation('');
@@ -80,83 +88,134 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
   }
 
   if (loading) {
-    return <p className="text-sm text-slate-400">Loading admin dashboard…</p>;
+    return (
+      <div className={loadingClass}>
+        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600" />
+        Loading
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-slate-400">Signed in as admin · {user.full_name}</p>
+      {error && <p className={alertErrorClass}>{error}</p>}
+      {message && <p className={alertSuccessClass}>{message}</p>}
 
-      {error && <p className="rounded-lg border border-red-900 bg-red-950/40 px-3 py-2 text-sm text-red-300">{error}</p>}
-      {message && (
-        <p className="rounded-lg border border-emerald-900 bg-emerald-950/40 px-3 py-2 text-sm text-emerald-300">{message}</p>
-      )}
-
-      <section className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-        <h3 className="text-lg font-semibold">Create bootcamp</h3>
-        <form onSubmit={handleCreateBootcamp} className="mt-3 grid gap-3 md:grid-cols-2">
-          <input className={inputClass} placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <input className={inputClass} placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} required />
-          <input
-            className={`${inputClass} md:col-span-2`}
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-          <label className="block text-sm text-slate-400">
-            Start date
+      <section className={sectionClass}>
+        <h2 className={sectionTitleClass}>New bootcamp</h2>
+        <p className={sectionDescClass}>Add a session to the schedule.</p>
+        <form onSubmit={handleCreateBootcamp} className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="title" className={labelClass}>
+              Title
+            </label>
+            <input id="title" className={inputClass} value={title} onChange={(e) => setTitle(e.target.value)} required />
+          </div>
+          <div>
+            <label htmlFor="location" className={labelClass}>
+              Location
+            </label>
             <input
-              className={`${inputClass} mt-1`}
+              id="location"
+              className={inputClass}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="description" className={labelClass}>
+              Description
+            </label>
+            <input
+              id="description"
+              className={inputClass}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="startDate" className={labelClass}>
+              Starts
+            </label>
+            <input
+              id="startDate"
+              className={inputClass}
               type="datetime-local"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               required
             />
-          </label>
-          <label className="block text-sm text-slate-400">
-            End date
+          </div>
+          <div>
+            <label htmlFor="endDate" className={labelClass}>
+              Ends
+            </label>
             <input
-              className={`${inputClass} mt-1`}
+              id="endDate"
+              className={inputClass}
               type="datetime-local"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               required
             />
-          </label>
-          <input
-            className={inputClass}
-            placeholder="Max slots"
-            type="number"
-            min={1}
-            value={maxSlots}
-            onChange={(e) => setMaxSlots(e.target.value)}
-            required
-          />
+          </div>
+          <div>
+            <label htmlFor="maxSlots" className={labelClass}>
+              Capacity
+            </label>
+            <input
+              id="maxSlots"
+              className={inputClass}
+              type="number"
+              min={1}
+              value={maxSlots}
+              onChange={(e) => setMaxSlots(e.target.value)}
+              required
+            />
+          </div>
           <div className="flex items-end">
             <button type="submit" disabled={submitting} className={buttonPrimaryClass}>
-              {submitting ? 'Creating…' : 'Create bootcamp'}
+              {submitting ? 'Saving…' : 'Create bootcamp'}
             </button>
           </div>
         </form>
       </section>
 
-      <section className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
-        <h3 className="text-lg font-semibold">All bootcamps</h3>
-        <div className="mt-3 space-y-3">
-          {bootcamps.length === 0 && <p className="text-sm text-slate-400">No bootcamps created yet.</p>}
+      <section className={sectionClass}>
+        <h2 className={sectionTitleClass}>All bootcamps</h2>
+        <div className="mt-4 divide-y divide-gray-100">
+          {bootcamps.length === 0 && <p className={emptyStateClass}>No bootcamps yet.</p>}
           {bootcamps.map((bootcamp) => (
-            <div key={bootcamp.id} className="rounded-lg border border-slate-800 p-3 text-sm">
-              <p className="font-medium">{bootcamp.title}</p>
-              <p className="mt-1 text-slate-400">{bootcamp.description}</p>
-              <p className="mt-2 text-slate-500">
-                {bootcamp.location} · {formatDate(bootcamp.start_date)} – {formatDate(bootcamp.end_date)}
-              </p>
-              <p className="mt-1 text-slate-500">
-                Enrolled {bootcamp.current_registrations}/{bootcamp.max_slots}
-                {bootcamp.supervisor_id ? ` · Supervisor #${bootcamp.supervisor_id}` : ''}
-              </p>
-            </div>
+            <article key={bootcamp.id} className="py-4 first:pt-0 last:pb-0">
+              <p className="font-medium text-gray-900">{bootcamp.title}</p>
+              <p className="mt-1 text-sm text-gray-600">{bootcamp.description}</p>
+              <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                <div>
+                  <dt className="sr-only">Location</dt>
+                  <dd>{bootcamp.location}</dd>
+                </div>
+                <div>
+                  <dt className="sr-only">Dates</dt>
+                  <dd>
+                    {formatDate(bootcamp.start_date)} – {formatDate(bootcamp.end_date)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="sr-only">Enrollment</dt>
+                  <dd>
+                    {bootcamp.current_registrations}/{bootcamp.max_slots} enrolled
+                  </dd>
+                </div>
+                {bootcamp.supervisor_id && (
+                  <div>
+                    <dt className="sr-only">Supervisor</dt>
+                    <dd>Supervisor #{bootcamp.supervisor_id}</dd>
+                  </div>
+                )}
+              </dl>
+            </article>
           ))}
         </div>
       </section>
