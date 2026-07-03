@@ -147,6 +147,17 @@ jobs:
 
             echo ".env file written for production deployment."
 
+            echo "Stopping existing stack to free ports..."
+            docker compose ${COMPOSE_ARGS} down --remove-orphans || true
+
+            for PORT in 8000 3000; do
+              if ss -tln | grep -q ":${PORT} "; then
+                echo "Port ${PORT} is still in use; stopping containers publishing it..."
+                docker ps -q --filter "publish=${PORT}" | xargs -r docker stop || true
+                sleep 2
+              fi
+            done
+
             if ! docker compose ${COMPOSE_ARGS} up -d --build --remove-orphans; then
               echo "ERROR: docker compose up failed."
               log_failure

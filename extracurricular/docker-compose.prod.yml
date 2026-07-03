@@ -3,24 +3,24 @@
 
 services:
   postgres:
-    ports: []
+    ports: !override []
 
   gateway:
-    ports:
+    ports: !override
       - "127.0.0.1:${GATEWAY_PORT:-8000}:8000"
 
   frontend:
-    ports:
+    ports: !override
       - "127.0.0.1:${FRONTEND_PORT:-3000}:3000"
 
   user_service:
-    ports: []
+    ports: !override []
 
   bootcamp_service:
-    ports: []
+    ports: !override []
 
   registration_service:
-    ports: []
+    ports: !override []
 
   showcase_service:
-    ports: []
+    ports: !override []
