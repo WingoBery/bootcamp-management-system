@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Callable, Optional
 
-import httpx
 from fastapi import APIRouter, HTTPException
 
 if TYPE_CHECKING:
@@ -53,6 +52,8 @@ def create_gateway_health_router(
 
     @router.get("/ready")
     async def ready():
+        import httpx
+
         async with httpx.AsyncClient(timeout=5.0) as client:
             for url in upstream_health_urls:
                 try:
