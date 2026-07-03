@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import LoadingSpinner from './LoadingSpinner';
 import StatCard from './StatCard';
-import type { Bootcamp, User } from '../lib/types';
+import type { Bootcamp, EnrollmentDetail, User } from '../lib/types';
 import {
   ApiError,
   alertErrorClass,
@@ -12,12 +12,16 @@ import {
   createBootcamp,
   emptyStateClass,
   formatDate,
+  innerItemClass,
   inputClass,
   labelClass,
   listBootcamps,
+  listEnrollments,
   sectionClass,
   sectionDescClass,
   sectionTitleClass,
+  selectClass,
+  statusBadgeClass,
 } from '../lib/api';
 
 interface AdminDashboardProps {
@@ -30,6 +34,8 @@ function toIsoFromLocalInput(value: string): string {
 
 export default function AdminDashboard({ user }: AdminDashboardProps) {
   const [bootcamps, setBootcamps] = useState<Bootcamp[]>([]);
+  const [enrollments, setEnrollments] = useState<EnrollmentDetail[]>([]);
+  const [enrollmentFilter, setEnrollmentFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,11 +52,22 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     setLoading(true);
     setError(null);
     try {
-      setBootcamps(await listBootcamps());
+      const bootcampData = await listBootcamps();
+      setBootcamps(bootcampData);
+      setEnrollments(await listEnrollments());
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to load bootcamps');
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const loadEnrollments = useCallback(async (bootcampId?: number) => {
+    setError(null);
+    try {
+      setEnrollments(await listEnrollments(bootcampId));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to load enrollments');
     }
   }, []);
 
@@ -90,6 +107,19 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
 
   const totalEnrolled = bootcamps.reduce((sum, item) => sum + item.current_registrations, 0);
   const totalCapacity = bootcamps.reduce((sum, item) => sum + item.max_slots, 0);
+
+  async function handleEnrollmentFilterChange(value: string) {
+    setEnrollmentFilter(value);
+    if (value === '') {
+      await loadEnrollments();
+      return;
+    }
+    await loadEnrollments(Number(value));
+  }
+
+  function bootcampTitle(bootcampId: number) {
+    return bootcamps.find((item) => item.id === bootcampId)?.title ?? `Bootcamp #${bootcampId}`;
+  }
 
   if (loading) {
     return <LoadingSpinner />;
@@ -223,6 +253,57 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
                     <dd>Supervisor #{bootcamp.supervisor_id}</dd>
                   </div>
                 )}
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="enrollments" className={`${sectionClass} scroll-mt-28`}>
+        <h2 className={sectionTitleClass}>Enrollments</h2>
+        <p className={sectionDescClass}>Students registered for bootcamp sessions.</p>
+
+        <div className="mt-5 max-w-sm">
+          <label htmlFor="enrollmentFilter" className={labelClass}>
+            Filter by bootcamp
+          </label>
+          <select
+            id="enrollmentFilter"
+            className={selectClass}
+            value={enrollmentFilter}
+            onChange={(e) => handleEnrollmentFilterChange(e.target.value)}
+          >
+            <option value="">All bootcamps</option>
+            {bootcamps.map((bootcamp) => (
+              <option key={bootcamp.id} value={bootcamp.id}>
+                {bootcamp.title}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mt-5 space-y-2">
+          {enrollments.length === 0 && <p className={emptyStateClass}>No enrollments found.</p>}
+          {enrollments.map((enrollment) => (
+            <article key={enrollment.id} className={`${innerItemClass} text-sm`}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                    {enrollment.student.full_name}
+                  </p>
+                  <p style={{ color: 'var(--text-secondary)' }}>{enrollment.student.email}</p>
+                </div>
+                <span className={statusBadgeClass}>{enrollment.status}</span>
+              </div>
+              <dl className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                <div>
+                  <dt className="sr-only">Bootcamp</dt>
+                  <dd>{bootcampTitle(enrollment.bootcamp_id)}</dd>
+                </div>
+                <div>
+                  <dt className="sr-only">Registered</dt>
+                  <dd>{formatDate(enrollment.registered_at)}</dd>
+                </div>
               </dl>
             </article>
           ))}

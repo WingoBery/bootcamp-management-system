@@ -11,6 +11,7 @@ export function getNavItemsForRole(role: UserRole): NavItem[] {
       return [
         { id: 'new-bootcamp', label: 'New bootcamp' },
         { id: 'all-bootcamps', label: 'All bootcamps' },
+        { id: 'enrollments', label: 'Enrollments' },
       ];
     case 'supervisor':
       return [{ id: 'review-queue', label: 'Review queue' }];

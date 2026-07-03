@@ -3,6 +3,7 @@ import { clearToken, getToken, setToken } from './auth';
 import type {
   Bootcamp,
   BootcampCreatePayload,
+  EnrollmentDetail,
   Registration,
   Showcase,
   ShowcaseGradePayload,
@@ -129,6 +130,53 @@ export async function submitShowcase(payload: ShowcaseSubmitPayload): Promise<Sh
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export async function submitShowcaseWithImage(
+  payload: ShowcaseSubmitPayload,
+  image: File,
+): Promise<Showcase> {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append('student_id', String(payload.student_id));
+  formData.append('bootcamp_id', String(payload.bootcamp_id));
+  formData.append('project_title', payload.project_title);
+  if (payload.project_url) {
+    formData.append('project_url', payload.project_url);
+  }
+  if (payload.description) {
+    formData.append('description', payload.description);
+  }
+  formData.append('project_image', image);
+
+  const headers: HeadersInit = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(`${getApiV1Base()}/showcases/with-image`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new ApiError(await parseError(response), response.status);
+  }
+
+  return response.json() as Promise<Showcase>;
+}
+
+export function getProjectImageUrl(filename: string | null | undefined): string | null {
+  if (!filename) {
+    return null;
+  }
+  return `${getApiV1Base()}/showcases/files/${filename}`;
+}
+
+export async function listEnrollments(bootcampId?: number): Promise<EnrollmentDetail[]> {
+  const query = bootcampId != null ? `?bootcamp_id=${bootcampId}` : '';
+  return apiRequest<EnrollmentDetail[]>(`/registrations/enrollments${query}`);
 }
 
 export async function listPendingShowcases(supervisorId: number): Promise<Showcase[]> {

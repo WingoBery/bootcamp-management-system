@@ -39,6 +39,7 @@ export interface Showcase {
   supervisor_id: number | null;
   project_title: string;
   project_url: string | null;
+  project_image_url: string | null;
   description: string | null;
   marks: number | null;
   evaluation: string | null;
@@ -62,6 +63,21 @@ export interface ShowcaseSubmitPayload {
   project_title: string;
   project_url?: string;
   description?: string;
+}
+
+export interface StudentSummary {
+  id: number;
+  full_name: string;
+  email: string;
+}
+
+export interface EnrollmentDetail {
+  id: number;
+  student_id: number;
+  bootcamp_id: number;
+  status: string;
+  registered_at: string;
+  student: StudentSummary;
 }
 
 export interface ShowcaseGradePayload {

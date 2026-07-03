@@ -26,6 +26,8 @@ import {
   selectClass,
   statusBadgeClass,
   submitShowcase,
+  submitShowcaseWithImage,
+  getProjectImageUrl,
 } from '../lib/api';
 
 interface StudentDashboardProps {
@@ -45,6 +47,8 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
   const [projectUrl, setProjectUrl] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const [bootcampId, setBootcampId] = useState('');
+  const [projectImage, setProjectImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const registeredIds = new Set(registrations.map((item) => item.bootcamp_id));
   const pendingReviews = showcases.filter((item) => item.marks == null).length;
@@ -92,22 +96,39 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
     setMessage(null);
     setError(null);
     try {
-      await submitShowcase({
+      const payload = {
         student_id: user.id,
         bootcamp_id: Number(bootcampId),
         project_title: projectTitle,
         project_url: projectUrl || undefined,
         description: projectDescription || undefined,
-      });
+      };
+
+      if (projectImage) {
+        await submitShowcaseWithImage(payload, projectImage);
+      } else {
+        await submitShowcase(payload);
+      }
+
       setMessage('Project submitted.');
       setProjectTitle('');
       setProjectUrl('');
       setProjectDescription('');
       setBootcampId('');
+      setProjectImage(null);
+      setImagePreview(null);
       await loadData();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Submission failed');
     }
+  }
+
+  function handleImageChange(file: File | null) {
+    setProjectImage(file);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImagePreview(file ? URL.createObjectURL(file) : null);
   }
 
   if (loading) {
@@ -247,6 +268,26 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
             />
           </div>
           <div className="sm:col-span-2">
+            <label htmlFor="projectImage" className={labelClass}>
+              Project photo
+            </label>
+            <input
+              id="projectImage"
+              className={inputClass}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={(e) => handleImageChange(e.target.files?.[0] ?? null)}
+            />
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Project preview"
+                className="mt-3 max-h-48 rounded-2xl border object-cover"
+                style={{ borderColor: 'var(--glass-border)' }}
+              />
+            )}
+          </div>
+          <div className="sm:col-span-2">
             <label htmlFor="projectDescription" className={labelClass}>
               Notes <span className="font-normal opacity-70">(optional)</span>
             </label>
@@ -269,8 +310,17 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
         <h2 className={sectionTitleClass}>My projects</h2>
         <div className="mt-4 space-y-3">
           {showcases.length === 0 && <p className={emptyStateClass}>No submissions yet.</p>}
-          {showcases.map((showcase) => (
+          {showcases.map((showcase) => {
+            const imageUrl = getProjectImageUrl(showcase.project_image_url);
+            return (
             <article key={showcase.id} className={innerItemClass}>
+              {imageUrl && (
+                <img
+                  src={imageUrl}
+                  alt={showcase.project_title}
+                  className="mb-3 max-h-56 w-full rounded-2xl object-cover"
+                />
+              )}
               <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
                 {showcase.project_title}
               </p>
@@ -295,7 +345,8 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
                 </p>
               )}
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>

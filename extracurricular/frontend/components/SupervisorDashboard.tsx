@@ -12,6 +12,7 @@ import {
   emptyStateClass,
   formatDate,
   gradeShowcase,
+  getProjectImageUrl,
   innerItemClass,
   inputClass,
   labelClass,
@@ -98,8 +99,17 @@ export default function SupervisorDashboard({ user }: SupervisorDashboardProps) 
         <div className="mt-5 space-y-4">
           {pending.length === 0 && <p className={emptyStateClass}>Nothing in the queue.</p>}
 
-          {pending.map((showcase) => (
+          {pending.map((showcase) => {
+            const imageUrl = getProjectImageUrl(showcase.project_image_url);
+            return (
             <article key={showcase.id} className={innerItemClass}>
+              {imageUrl && (
+                <img
+                  src={imageUrl}
+                  alt={showcase.project_title}
+                  className="mb-4 max-h-72 w-full rounded-2xl object-cover"
+                />
+              )}
               <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
                 {showcase.project_title}
               </p>
@@ -171,7 +181,8 @@ export default function SupervisorDashboard({ user }: SupervisorDashboardProps) 
                 </div>
               </form>
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
