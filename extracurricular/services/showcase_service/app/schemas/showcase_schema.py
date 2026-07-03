@@ -26,6 +26,7 @@ class ShowcaseResponse(BaseModel):
     supervisor_id: Optional[int] = None
     project_title: str
     project_url: Optional[str] = None
+    project_image_url: Optional[str] = None
     description: Optional[str] = None
     marks: Optional[float] = None
     evaluation: Optional[str] = None
@@ -34,4 +35,4 @@ class ShowcaseResponse(BaseModel):
     graded_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

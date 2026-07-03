@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from typing import List
 
 from database.session import get_db
 from schemas.showcase_schema import ShowcaseGrade, ShowcaseResponse, ShowcaseSubmit
 from services import showcase_service
+from services.image_storage import resolve_image_path
 
 router = APIRouter(prefix="/showcase")
 
@@ -12,6 +15,32 @@ router = APIRouter(prefix="/showcase")
 @router.post("/", response_model=ShowcaseResponse)
 def submit_project(showcase: ShowcaseSubmit, db: Session = Depends(get_db)):
     return showcase_service.submit_showcase(showcase, db)
+
+
+@router.post("/with-image", response_model=ShowcaseResponse)
+async def submit_project_with_image(
+    student_id: int = Form(...),
+    bootcamp_id: int = Form(...),
+    project_title: str = Form(...),
+    project_url: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    project_image: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    payload = ShowcaseSubmit(
+        student_id=student_id,
+        bootcamp_id=bootcamp_id,
+        project_title=project_title,
+        project_url=project_url or None,
+        description=description or None,
+    )
+    return showcase_service.submit_showcase_with_image(payload, project_image, db)
+
+
+@router.get("/files/{filename}")
+def get_project_image(filename: str):
+    path = resolve_image_path(filename)
+    return FileResponse(path)
 
 
 @router.put("/{showcase_id}/grade", response_model=ShowcaseResponse)

@@ -6,6 +6,7 @@ from sqlalchemy import text
 
 from database.connection import engine
 from routers import showcase as showcase_router
+from services.image_storage import ensure_upload_dir
 from shared.health import create_health_router
 from shared.logging_setup import RequestLoggingMiddleware, register_exception_handlers, setup_logging
 
@@ -22,6 +23,7 @@ def _startup_check():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("%s starting up", SERVICE_NAME)
+    ensure_upload_dir()
     _startup_check()
     logger.info("%s startup complete", SERVICE_NAME)
     yield

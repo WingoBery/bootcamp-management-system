@@ -37,6 +37,7 @@ SERVICE_ROUTE_MAP: Dict[str, str] = {
 }
 
 PROTECTED_PREFIXES = ["/api/v1/users", "/api/v1/bootcamps", "/api/v1/registrations", "/api/v1/showcases"]
+PUBLIC_GET_PREFIXES = ["/api/v1/showcases/files/"]
 
 UPSTREAM_HEALTH_URLS = list({f"{url}/health" for url in SERVICE_URLS.values()})
 
@@ -102,10 +103,14 @@ async def proxy_request(request: Request, path: str):
         return JSONResponse(status_code=404, content={"detail": "Route not found"})
 
     if any(request_path.startswith(prefix) for prefix in PROTECTED_PREFIXES):
-        try:
-            _validate_token(request.headers.get("authorization"))
-        except ValueError as exc:
-            return JSONResponse(status_code=401, content={"detail": str(exc)})
+        is_public_file = request.method == "GET" and any(
+            request_path.startswith(prefix) for prefix in PUBLIC_GET_PREFIXES
+        )
+        if not is_public_file:
+            try:
+                _validate_token(request.headers.get("authorization"))
+            except ValueError as exc:
+                return JSONResponse(status_code=401, content={"detail": str(exc)})
 
     service_path = SERVICE_ROUTE_MAP[route_prefix]
     forwarded_path = request_path.replace(route_prefix, service_path, 1)

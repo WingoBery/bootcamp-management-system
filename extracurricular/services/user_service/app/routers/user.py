@@ -35,3 +35,8 @@ def get_me(
     db: Session = Depends(get_db),
 ):
     return user_service.get_user_by_id(user_id, db)
+
+
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    return user_service.get_user_by_id(user_id, db)

@@ -14,6 +14,7 @@ class Showcase(Base):
     supervisor_id = Column(Integer)
     project_title = Column(String, nullable=False)
     project_url = Column(String)
+    project_image_url = Column(String)
     description = Column(Text)
     marks = Column(Float)
     evaluation = Column(String)

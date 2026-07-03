@@ -1,10 +1,23 @@
 from datetime import datetime, timezone
 
 from models.showcase_model import Showcase
+from schemas.showcase_schema import ShowcaseSubmit
+from services.image_storage import save_project_image
 
 
-def submit_showcase(showcase, db):
+def submit_showcase(showcase: ShowcaseSubmit, db):
     new_showcase = Showcase(**showcase.model_dump())
+    db.add(new_showcase)
+    db.commit()
+    db.refresh(new_showcase)
+    return new_showcase
+
+
+def submit_showcase_with_image(showcase: ShowcaseSubmit, image, db):
+    filename = save_project_image(image)
+    payload = showcase.model_dump()
+    payload["project_image_url"] = filename
+    new_showcase = Showcase(**payload)
     db.add(new_showcase)
     db.commit()
     db.refresh(new_showcase)
@@ -35,14 +48,8 @@ def list_student_showcases(student_id, db):
 
 
 def list_pending_for_supervisor(supervisor_id, db):
-    return (
-        db.query(Showcase)
-        .filter(
-            Showcase.supervisor_id == supervisor_id,
-            Showcase.marks.is_(None),
-        )
-        .all()
-    )
+    _ = supervisor_id
+    return db.query(Showcase).filter(Showcase.marks.is_(None)).order_by(Showcase.submitted_at.desc()).all()
 
 
 def get_showcase(showcase_id, db):

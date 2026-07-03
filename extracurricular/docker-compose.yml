@@ -4,6 +4,7 @@ networks:
 
 volumes:
   postgres_data:
+  showcase_uploads:
 
 services:
   postgres:
@@ -113,6 +114,7 @@ services:
     environment:
       DATABASE_URL: ${REGISTRATION_DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/registration_db}
       BOOTCAMP_SERVICE_URL: ${BOOTCAMP_SERVICE_URL:-http://bootcamp_service:8000}
+      USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user_service:8000}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
@@ -140,8 +142,11 @@ services:
       - bootcamp-net
     environment:
       DATABASE_URL: ${SHOWCASE_DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/showcase_db}
+      UPLOAD_DIR: /app/uploads
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       ENVIRONMENT: ${ENVIRONMENT:-development}
+    volumes:
+      - showcase_uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy

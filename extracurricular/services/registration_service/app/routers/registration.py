@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from database.session import get_db
-from schemas.registration_schema import RegistrationCreate, RegistrationResponse
+from schemas.registration_schema import EnrollmentDetail, RegistrationCreate, RegistrationResponse
 from services import registration_service
 
 router = APIRouter(prefix="/registration")
@@ -20,6 +20,19 @@ def register_for_bootcamp(
 @router.get("/", response_model=List[RegistrationResponse])
 def list_all_registrations(db: Session = Depends(get_db)):
     return registration_service.list_registrations(db)
+
+
+@router.get("/enrollments", response_model=List[EnrollmentDetail])
+def list_enrollments(
+    bootcamp_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+):
+    return registration_service.list_enrollment_details(db, bootcamp_id=bootcamp_id)
+
+
+@router.get("/bootcamp/{bootcamp_id}", response_model=List[RegistrationResponse])
+def list_by_bootcamp(bootcamp_id: int, db: Session = Depends(get_db)):
+    return registration_service.list_bootcamp_registrations(bootcamp_id, db)
 
 
 @router.get("/student/{student_id}", response_model=List[RegistrationResponse])
