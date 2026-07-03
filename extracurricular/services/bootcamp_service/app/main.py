@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlalchemy import text
 
-from database.base import Base
 from database.connection import engine
 from routers import bootcamp as bootcamp_router
 from shared.health import create_health_router
@@ -16,7 +15,6 @@ logger = setup_logging(SERVICE_NAME, LOG_LEVEL)
 
 
 def _startup_check():
-    Base.metadata.create_all(bind=engine)
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
 

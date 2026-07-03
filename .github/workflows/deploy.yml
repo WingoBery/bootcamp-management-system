@@ -147,7 +147,11 @@ jobs:
 
             echo ".env file written for production deployment."
 
-            docker compose ${COMPOSE_ARGS} up -d --build --remove-orphans
+            if ! docker compose ${COMPOSE_ARGS} up -d --build --remove-orphans; then
+              echo "ERROR: docker compose up failed."
+              log_failure
+              exit 1
+            fi
             docker compose ${COMPOSE_ARGS} ps
 
             echo "Waiting for gateway /health endpoint..."
