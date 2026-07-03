@@ -2,21 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import AdminDashboard from '../components/AdminDashboard';
+import AppShell from '../components/AppShell';
+import LoadingSpinner from '../components/LoadingSpinner';
 import LoginPanel from '../components/LoginPanel';
 import StudentDashboard from '../components/StudentDashboard';
 import SupervisorDashboard from '../components/SupervisorDashboard';
-import { ApiError, buttonGhostClass, getCurrentUser, logout, roleBadgeClass, alertErrorClass, loadingClass } from '../lib/api';
+import ThemeToggle from '../components/ThemeToggle';
+import { ApiError, alertErrorClass, getCurrentUser, logout } from '../lib/api';
 import { getToken } from '../lib/auth';
+import { getNavItemsForRole } from '../lib/navigation';
 import type { User } from '../lib/types';
-
-function LoadingSpinner() {
-  return (
-    <div className={loadingClass}>
-      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600" />
-      Loading
-    </div>
-  );
-}
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -67,42 +62,35 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <div>
-            <p className="text-base font-semibold text-gray-900">Bootcamp Management</p>
-            <p className="text-sm text-gray-500">Scheduling, enrollment & reviews</p>
-          </div>
-
-          {user && (
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="hidden text-right sm:block">
-                <p className="text-sm font-medium text-gray-900">{user.full_name}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
-              </div>
-              <span className={roleBadgeClass}>{user.role}</span>
-              <button type="button" onClick={handleLogout} className={buttonGhostClass}>
-                Sign out
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
-        {error && <p className={`${alertErrorClass} mb-6`}>{error}</p>}
-
-        {initializing ? (
+    <div className="app-canvas min-h-screen">
+      {initializing ? (
+        <div className="flex min-h-screen items-center justify-center p-6">
           <LoadingSpinner />
-        ) : !user ? (
-          <div className="mx-auto max-w-md">
+        </div>
+      ) : !user ? (
+        <div className="relative flex min-h-screen flex-col items-center justify-center p-6">
+          <div className="absolute right-5 top-5 sm:right-8 sm:top-8">
+            <ThemeToggle />
+          </div>
+          <div className="mb-8 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
+              Bootcamp Management
+            </h1>
+            <p className="mt-2 text-sm sm:text-base" style={{ color: 'var(--text-secondary)' }}>
+              Scheduling, enrollment, and project reviews
+            </p>
+          </div>
+          <div className="w-full max-w-md">
+            {error && <p className={`${alertErrorClass} mb-4`}>{error}</p>}
             <LoginPanel onAuthenticated={setUser} />
           </div>
-        ) : (
-          renderRoleDashboard(user)
-        )}
-      </main>
+        </div>
+      ) : (
+        <AppShell user={user} navItems={getNavItemsForRole(user.role)} onLogout={handleLogout}>
+          {error && <p className={`${alertErrorClass} mb-5`}>{error}</p>}
+          {renderRoleDashboard(user)}
+        </AppShell>
+      )}
     </div>
   );
 }

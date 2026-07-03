@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useState } from 'react';
+import LoadingSpinner from './LoadingSpinner';
+import StatCard from './StatCard';
 import type { Showcase, User } from '../lib/types';
 import {
   ApiError,
@@ -10,11 +12,11 @@ import {
   emptyStateClass,
   formatDate,
   gradeShowcase,
+  innerItemClass,
   inputClass,
   labelClass,
   linkClass,
   listPendingShowcases,
-  loadingClass,
   sectionClass,
   sectionDescClass,
   sectionTitleClass,
@@ -76,20 +78,20 @@ export default function SupervisorDashboard({ user }: SupervisorDashboardProps) 
   }
 
   if (loading) {
-    return (
-      <div className={loadingClass}>
-        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600" />
-        Loading
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
     <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <StatCard label="Awaiting review" value={pending.length} />
+        <StatCard label="Queue" value={pending.length === 0 ? 'All clear' : 'Needs attention'} />
+      </div>
+
       {error && <p className={alertErrorClass}>{error}</p>}
       {message && <p className={alertSuccessClass}>{message}</p>}
 
-      <section className={sectionClass}>
+      <section id="review-queue" className={`${sectionClass} scroll-mt-28`}>
         <h2 className={sectionTitleClass}>Review queue</h2>
         <p className={sectionDescClass}>Projects waiting for a grade.</p>
 
@@ -97,15 +99,21 @@ export default function SupervisorDashboard({ user }: SupervisorDashboardProps) 
           {pending.length === 0 && <p className={emptyStateClass}>Nothing in the queue.</p>}
 
           {pending.map((showcase) => (
-            <article key={showcase.id} className="rounded-md border border-gray-200 p-4">
-              <p className="font-medium text-gray-900">{showcase.project_title}</p>
+            <article key={showcase.id} className={innerItemClass}>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                {showcase.project_title}
+              </p>
               {showcase.project_url && (
                 <a href={showcase.project_url} target="_blank" rel="noreferrer" className={`${linkClass} mt-1 block`}>
                   {showcase.project_url}
                 </a>
               )}
-              {showcase.description && <p className="mt-2 text-sm text-gray-600">{showcase.description}</p>}
-              <p className="mt-2 text-xs text-gray-500">
+              {showcase.description && (
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  {showcase.description}
+                </p>
+              )}
+              <p className="mt-2 text-xs" style={{ color: 'var(--text-tertiary)' }}>
                 Student #{showcase.student_id} · Bootcamp #{showcase.bootcamp_id} ·{' '}
                 {formatDate(showcase.submitted_at)}
               </p>

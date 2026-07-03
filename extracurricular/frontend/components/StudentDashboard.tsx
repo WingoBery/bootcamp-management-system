@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useState } from 'react';
+import LoadingSpinner from './LoadingSpinner';
+import StatCard from './StatCard';
 import type { Bootcamp, Registration, Showcase, User } from '../lib/types';
 import {
   ApiError,
@@ -10,13 +12,13 @@ import {
   buttonSecondaryClass,
   emptyStateClass,
   formatDate,
+  innerItemClass,
   inputClass,
   labelClass,
   linkClass,
   listBootcamps,
   listStudentRegistrations,
   listStudentShowcases,
-  loadingClass,
   registerForBootcamp,
   sectionClass,
   sectionDescClass,
@@ -45,6 +47,7 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
   const [bootcampId, setBootcampId] = useState('');
 
   const registeredIds = new Set(registrations.map((item) => item.bootcamp_id));
+  const pendingReviews = showcases.filter((item) => item.marks == null).length;
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -108,30 +111,36 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
   }
 
   if (loading) {
-    return (
-      <div className={loadingClass}>
-        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600" />
-        Loading
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
     <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Open bootcamps" value={bootcamps.length} />
+        <StatCard label="Enrollments" value={registrations.length} />
+        <StatCard label="Submissions" value={showcases.length} />
+        <StatCard label="Pending review" value={pendingReviews} />
+      </div>
+
       {error && <p className={alertErrorClass}>{error}</p>}
       {message && <p className={alertSuccessClass}>{message}</p>}
 
-      <section className={sectionClass}>
+      <section id="bootcamps" className={`${sectionClass} scroll-mt-28`}>
         <h2 className={sectionTitleClass}>Bootcamps</h2>
         <p className={sectionDescClass}>Open sessions you can enroll in.</p>
-        <div className="mt-5 divide-y divide-gray-100">
+        <div className="glass-divider mt-5">
           {bootcamps.length === 0 && <p className={emptyStateClass}>Nothing scheduled yet.</p>}
           {bootcamps.map((bootcamp) => (
             <div key={bootcamp.id} className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-gray-900">{bootcamp.title}</p>
-                <p className="mt-1 text-sm text-gray-600">{bootcamp.description}</p>
-                <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                  {bootcamp.title}
+                </p>
+                <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  {bootcamp.description}
+                </p>
+                <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: 'var(--text-tertiary)' }}>
                   <div>
                     <dt className="sr-only">Location</dt>
                     <dd>{bootcamp.location}</dd>
@@ -167,21 +176,18 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
         </div>
       </section>
 
-      <section className={sectionClass}>
+      <section id="enrollments" className={`${sectionClass} scroll-mt-28`}>
         <h2 className={sectionTitleClass}>My enrollments</h2>
         <ul className="mt-4 space-y-2">
           {registrations.length === 0 && <li className={emptyStateClass}>No enrollments yet.</li>}
           {registrations.map((registration) => {
             const bootcamp = bootcamps.find((item) => item.id === registration.bootcamp_id);
             return (
-              <li
-                key={registration.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-gray-100 bg-gray-50 px-3 py-2.5 text-sm"
-              >
-                <span className="font-medium text-gray-900">
+              <li key={registration.id} className={`${innerItemClass} flex flex-wrap items-center justify-between gap-2 text-sm`}>
+                <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
                   {bootcamp?.title ?? `Bootcamp #${registration.bootcamp_id}`}
                 </span>
-                <span className="flex items-center gap-2 text-gray-500">
+                <span className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
                   <span className={statusBadgeClass}>{registration.status}</span>
                   {formatDate(registration.registered_at)}
                 </span>
@@ -191,7 +197,7 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
         </ul>
       </section>
 
-      <section className={sectionClass}>
+      <section id="submit-project" className={`${sectionClass} scroll-mt-28`}>
         <h2 className={sectionTitleClass}>Submit a project</h2>
         <p className={sectionDescClass}>For a bootcamp you&apos;re enrolled in.</p>
         <form onSubmit={handleSubmitShowcase} className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -231,7 +237,7 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
           </div>
           <div>
             <label htmlFor="projectUrl" className={labelClass}>
-              URL <span className="font-normal text-gray-400">(optional)</span>
+              URL <span className="font-normal opacity-70">(optional)</span>
             </label>
             <input
               id="projectUrl"
@@ -242,7 +248,7 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
           </div>
           <div className="sm:col-span-2">
             <label htmlFor="projectDescription" className={labelClass}>
-              Notes <span className="font-normal text-gray-400">(optional)</span>
+              Notes <span className="font-normal opacity-70">(optional)</span>
             </label>
             <input
               id="projectDescription"
@@ -259,19 +265,21 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
         </form>
       </section>
 
-      <section className={sectionClass}>
+      <section id="my-projects" className={`${sectionClass} scroll-mt-28`}>
         <h2 className={sectionTitleClass}>My projects</h2>
         <div className="mt-4 space-y-3">
           {showcases.length === 0 && <p className={emptyStateClass}>No submissions yet.</p>}
           {showcases.map((showcase) => (
-            <article key={showcase.id} className="rounded-md border border-gray-100 bg-gray-50 p-4">
-              <p className="font-medium text-gray-900">{showcase.project_title}</p>
+            <article key={showcase.id} className={innerItemClass}>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                {showcase.project_title}
+              </p>
               {showcase.project_url && (
                 <a href={showcase.project_url} target="_blank" rel="noreferrer" className={`${linkClass} mt-1 block`}>
                   {showcase.project_url}
                 </a>
               )}
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
                 {showcase.marks != null ? (
                   <>
                     <span className={statusBadgeClass}>{showcase.evaluation ?? 'graded'}</span>
@@ -281,7 +289,11 @@ export default function StudentDashboard({ user }: StudentDashboardProps) {
                   <span className={statusBadgeClass}>Pending review</span>
                 )}
               </p>
-              {showcase.feedback && <p className="mt-2 text-sm text-gray-500">{showcase.feedback}</p>}
+              {showcase.feedback && (
+                <p className="mt-2 text-sm" style={{ color: 'var(--text-tertiary)' }}>
+                  {showcase.feedback}
+                </p>
+              )}
             </article>
           ))}
         </div>

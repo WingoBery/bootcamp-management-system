@@ -1,39 +1,47 @@
-export const inputClass =
-  'w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500';
+export const inputClass = 'glass-input';
 
 export const selectClass = `${inputClass} pr-8`;
 
-export const buttonPrimaryClass =
-  'inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+export const buttonPrimaryClass = 'glass-btn-primary';
 
-export const buttonSecondaryClass =
-  'inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50';
+export const buttonSecondaryClass = 'glass-btn-secondary';
 
-export const buttonGhostClass =
-  'inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900';
+export const buttonGhostClass = 'glass-btn-ghost';
 
-export const cardClass = 'rounded-lg border border-gray-200 bg-white shadow-sm';
+export const cardClass = 'glass-panel';
 
-export const sectionClass = `${cardClass} p-5 sm:p-6`;
+export const sectionClass = 'glass-panel p-5 sm:p-6 lg:p-7';
 
-export const sectionTitleClass = 'text-base font-semibold text-gray-900';
+export const sectionTitleClass = 'section-title';
 
-export const sectionDescClass = 'mt-1 text-sm text-gray-500';
+export const sectionDescClass = 'section-desc';
 
-export const labelClass = 'mb-1.5 block text-sm font-medium text-gray-700';
+export const labelClass = 'form-label mb-1.5 block text-sm font-medium';
 
-export const alertErrorClass = 'rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800';
+export const alertErrorClass = 'glass-alert-error';
 
-export const alertSuccessClass = 'rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800';
+export const alertSuccessClass = 'glass-alert-success';
 
-export const linkClass = 'text-sm text-indigo-600 hover:text-indigo-500 hover:underline';
+export const linkClass = 'glass-link';
 
-export const emptyStateClass = 'text-sm text-gray-500';
+export const emptyStateClass = 'empty-state text-sm leading-relaxed';
 
-export const roleBadgeClass =
-  'inline-flex items-center rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-medium capitalize text-indigo-700 ring-1 ring-inset ring-indigo-600/20';
+export const roleBadgeClass = 'glass-badge';
 
-export const statusBadgeClass =
-  'inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600';
+export const statusBadgeClass = 'glass-status';
 
-export const loadingClass = 'flex items-center gap-2.5 text-sm text-gray-500';
+export const loadingClass = 'loading-text flex items-center gap-2.5 text-sm';
+
+export const innerItemClass = 'glass-inner p-4';
+
+export const statCardClass = 'glass-stat';
+
+export const statLabelClass = 'stat-label';
+
+export const statValueClass = 'stat-value';
+
+export const spinnerClass = 'glass-spinner';
+
+export const tabClass = (active: boolean) => `glass-tab ${active ? 'glass-tab-active' : ''}`;
+
+export const navItemClass = (active: boolean) => `glass-nav-item ${active ? 'glass-nav-item-active' : ''}`;

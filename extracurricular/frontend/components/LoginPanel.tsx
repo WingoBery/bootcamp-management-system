@@ -12,6 +12,7 @@ import {
   register,
   sectionClass,
   selectClass,
+  tabClass,
 } from '../lib/api';
 
 interface LoginPanelProps {
@@ -47,16 +48,9 @@ export default function LoginPanel({ onAuthenticated }: LoginPanelProps) {
     }
   }
 
-  const tabClass = (active: boolean) =>
-    `flex-1 border-b-2 pb-3 text-sm font-medium transition ${
-      active
-        ? 'border-indigo-600 text-indigo-600'
-        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-    }`;
-
   return (
     <div className={sectionClass}>
-      <div className="flex gap-6 border-b border-gray-200">
+      <div className="flex gap-2 rounded-2xl p-1" style={{ background: 'var(--glass-inner)' }}>
         <button type="button" onClick={() => setMode('login')} className={tabClass(mode === 'login')}>
           Sign in
         </button>

@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useState } from 'react';
+import LoadingSpinner from './LoadingSpinner';
+import StatCard from './StatCard';
 import type { Bootcamp, User } from '../lib/types';
 import {
   ApiError,
@@ -13,7 +15,6 @@ import {
   inputClass,
   labelClass,
   listBootcamps,
-  loadingClass,
   sectionClass,
   sectionDescClass,
   sectionTitleClass,
@@ -87,21 +88,25 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     }
   }
 
+  const totalEnrolled = bootcamps.reduce((sum, item) => sum + item.current_registrations, 0);
+  const totalCapacity = bootcamps.reduce((sum, item) => sum + item.max_slots, 0);
+
   if (loading) {
-    return (
-      <div className={loadingClass}>
-        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600" />
-        Loading
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
     <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Bootcamps" value={bootcamps.length} />
+        <StatCard label="Total enrolled" value={totalEnrolled} />
+        <StatCard label="Total capacity" value={totalCapacity} />
+      </div>
+
       {error && <p className={alertErrorClass}>{error}</p>}
       {message && <p className={alertSuccessClass}>{message}</p>}
 
-      <section className={sectionClass}>
+      <section id="new-bootcamp" className={`${sectionClass} scroll-mt-28`}>
         <h2 className={sectionTitleClass}>New bootcamp</h2>
         <p className={sectionDescClass}>Add a session to the schedule.</p>
         <form onSubmit={handleCreateBootcamp} className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -183,15 +188,19 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
         </form>
       </section>
 
-      <section className={sectionClass}>
+      <section id="all-bootcamps" className={`${sectionClass} scroll-mt-28`}>
         <h2 className={sectionTitleClass}>All bootcamps</h2>
-        <div className="mt-4 divide-y divide-gray-100">
+        <div className="glass-divider mt-4">
           {bootcamps.length === 0 && <p className={emptyStateClass}>No bootcamps yet.</p>}
           {bootcamps.map((bootcamp) => (
             <article key={bootcamp.id} className="py-4 first:pt-0 last:pb-0">
-              <p className="font-medium text-gray-900">{bootcamp.title}</p>
-              <p className="mt-1 text-sm text-gray-600">{bootcamp.description}</p>
-              <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                {bootcamp.title}
+              </p>
+              <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                {bootcamp.description}
+              </p>
+              <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: 'var(--text-tertiary)' }}>
                 <div>
                   <dt className="sr-only">Location</dt>
                   <dd>{bootcamp.location}</dd>
