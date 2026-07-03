@@ -15,6 +15,9 @@ ARG NEXT_PUBLIC_API_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Next.js expects public/; ensure it exists even when the repo has no static assets yet
+RUN mkdir -p public
+
 RUN npm run build
 
 FROM node:20-alpine AS runner
@@ -25,6 +28,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN mkdir -p /app/public
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
