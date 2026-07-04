@@ -15,9 +15,9 @@ COPY shared/ /app/shared/
 COPY services/showcase_service/app/ /app/
 COPY services/showcase_service/entrypoint.sh /app/entrypoint.sh
 
-RUN chmod +x /app/entrypoint.sh && chown -R app:app /app
+RUN chmod +x /app/entrypoint.sh && chown -R app:app /app && mkdir -p /app/uploads && chown -R app:app /app/uploads
 
-USER app
+USER root
 
 EXPOSE 8000
 
