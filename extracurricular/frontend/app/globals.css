@@ -476,4 +476,268 @@
   .grade-feedback-cell {
     @apply max-w-[14rem] truncate;
   }
+
+  /* Public showcase landing */
+  .showcase-page {
+    --orb-1: rgba(212, 132, 58, 0.2);
+    --orb-2: rgba(34, 139, 87, 0.16);
+    --orb-3: rgba(218, 165, 32, 0.14);
+  }
+
+  .dark .showcase-page {
+    --orb-1: rgba(212, 132, 58, 0.22);
+    --orb-2: rgba(46, 160, 98, 0.18);
+    --orb-3: rgba(218, 165, 32, 0.12);
+  }
+
+  .showcase-header {
+    @apply sticky top-0 z-20 border-b backdrop-blur-2xl;
+    border-color: var(--glass-border);
+    background: color-mix(in srgb, var(--glass-surface) 88%, transparent);
+  }
+
+  .showcase-header-inner {
+    @apply mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8;
+  }
+
+  .showcase-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.2em];
+    color: #c47a2c;
+  }
+
+  .dark .showcase-kicker {
+    color: #e8a54b;
+  }
+
+  .showcase-brand {
+    @apply text-xl font-semibold tracking-tight sm:text-2xl;
+    color: var(--text-primary);
+  }
+
+  .showcase-header-actions {
+    @apply flex items-center gap-3;
+  }
+
+  .showcase-main {
+    @apply mx-auto max-w-6xl space-y-10 px-5 py-8 sm:px-8 sm:py-10;
+  }
+
+  .showcase-hero {
+    @apply p-6 sm:p-8 lg:p-10;
+  }
+
+  .showcase-hero-grid {
+    @apply grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center;
+  }
+
+  .showcase-hero-title {
+    @apply text-2xl font-semibold leading-tight tracking-tight sm:text-3xl lg:text-4xl;
+    color: var(--text-primary);
+  }
+
+  .showcase-hero-desc {
+    @apply mt-4 max-w-2xl text-sm leading-relaxed sm:text-base;
+    color: var(--text-secondary);
+  }
+
+  .showcase-hero-actions {
+    @apply mt-6 flex flex-wrap gap-3;
+  }
+
+  .showcase-stats-grid {
+    @apply grid grid-cols-2 gap-3 sm:gap-4;
+  }
+
+  .showcase-stat {
+    @apply glass-inner rounded-2xl p-4 text-center;
+  }
+
+  .showcase-stat-value {
+    @apply text-2xl font-semibold sm:text-3xl;
+    color: var(--text-primary);
+  }
+
+  .showcase-stat-label {
+    @apply mt-1 text-xs font-medium uppercase tracking-wide;
+    color: var(--text-tertiary);
+  }
+
+  .showcase-section {
+    @apply space-y-5;
+  }
+
+  .showcase-section-head-row {
+    @apply flex flex-wrap items-end justify-between gap-4;
+  }
+
+  .showcase-top-grid {
+    @apply grid gap-4 sm:grid-cols-3;
+  }
+
+  .showcase-top-card {
+    @apply relative overflow-hidden p-5 text-center;
+  }
+
+  .showcase-top-rank {
+    @apply absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold;
+    background: linear-gradient(135deg, #c47a2c, #e8a54b);
+    color: #fff;
+  }
+
+  .showcase-top-avatar {
+    @apply mx-auto h-20 w-20 rounded-full object-cover ring-2 ring-offset-2;
+    ring-color: #c47a2c;
+    ring-offset-color: transparent;
+  }
+
+  .showcase-top-name {
+    @apply mt-4 text-base font-semibold;
+    color: var(--text-primary);
+  }
+
+  .showcase-top-project {
+    @apply mt-1 text-sm font-medium;
+    color: #c47a2c;
+  }
+
+  .dark .showcase-top-project {
+    color: #e8a54b;
+  }
+
+  .showcase-top-meta {
+    @apply mt-2 text-xs;
+    color: var(--text-secondary);
+  }
+
+  .showcase-filter-wrap {
+    @apply min-w-[12rem];
+  }
+
+  .showcase-filter-select {
+    @apply mt-1.5;
+  }
+
+  .showcase-gallery-grid {
+    @apply grid gap-5 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .showcase-card {
+    @apply glass-panel overflow-hidden transition-all duration-300 ease-apple;
+  }
+
+  .showcase-card:hover {
+    @apply -translate-y-1 shadow-glass-lg;
+    background: var(--glass-surface-hover);
+  }
+
+  .showcase-card-champion {
+    box-shadow:
+      0 0 0 1px rgba(212, 132, 58, 0.35),
+      0 12px 40px rgba(212, 132, 58, 0.12);
+  }
+
+  .showcase-card-image-wrap {
+    @apply relative aspect-[16/10] overflow-hidden;
+  }
+
+  .showcase-card-image {
+    @apply h-full w-full object-cover transition-transform duration-500 ease-apple;
+  }
+
+  .showcase-card:hover .showcase-card-image {
+    @apply scale-105;
+  }
+
+  .showcase-card-overlay {
+    @apply absolute inset-0 flex flex-col justify-end gap-2 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4;
+  }
+
+  .showcase-rank-pill {
+    @apply inline-flex w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide;
+    background: rgba(255, 255, 255, 0.92);
+    color: #1d1d1f;
+  }
+
+  .showcase-champion-pill {
+    @apply inline-flex w-fit rounded-full px-2.5 py-1 text-[11px] font-semibold;
+    background: linear-gradient(135deg, #c47a2c, #e8a54b);
+    color: #fff;
+  }
+
+  .showcase-card-body {
+    @apply space-y-3 p-4 sm:p-5;
+  }
+
+  .showcase-card-meta {
+    @apply flex flex-wrap items-center justify-between gap-2 text-xs;
+    color: var(--text-tertiary);
+  }
+
+  .showcase-card-title {
+    @apply text-base font-semibold leading-snug;
+    color: var(--text-primary);
+  }
+
+  .showcase-card-desc {
+    @apply text-sm leading-relaxed;
+    color: var(--text-secondary);
+  }
+
+  .showcase-student-row {
+    @apply flex items-start justify-between gap-3 rounded-2xl border p-3;
+    border-color: var(--glass-border);
+    background: var(--glass-inner);
+  }
+
+  .showcase-student-label {
+    @apply text-[10px] font-semibold uppercase tracking-wide;
+    color: var(--text-tertiary);
+  }
+
+  .showcase-student-name {
+    @apply mt-0.5 text-sm font-semibold;
+    color: var(--text-primary);
+  }
+
+  .showcase-grade-block {
+    @apply text-right;
+  }
+
+  .showcase-grade-marks {
+    @apply text-lg font-bold;
+    color: #c47a2c;
+  }
+
+  .dark .showcase-grade-marks {
+    color: #e8a54b;
+  }
+
+  .showcase-grade-eval {
+    @apply text-[11px] font-medium capitalize;
+    color: var(--text-secondary);
+  }
+
+  .showcase-tag-list {
+    @apply flex flex-wrap gap-1.5;
+  }
+
+  .showcase-tag {
+    @apply rounded-full px-2 py-0.5 text-[11px] font-medium;
+    background: rgba(34, 139, 87, 0.12);
+    color: #1f7a4d;
+  }
+
+  .dark .showcase-tag {
+    background: rgba(46, 160, 98, 0.18);
+    color: #5fd68a;
+  }
+
+  .showcase-footer {
+    @apply mx-auto mb-8 flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8;
+  }
+
+  .showcase-footer-text {
+    @apply text-sm;
+    color: var(--text-secondary);
+  }
 }

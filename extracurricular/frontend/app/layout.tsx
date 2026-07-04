@@ -10,8 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Bootcamp Management',
-  description: 'Bootcamp scheduling, enrollment, and project reviews',
+  title: 'African Innovation Gallery | Bootcamp Showcase',
+  description:
+    'Discover standout graduate projects from African bootcamps — fintech, agri-tech, health, civic tech, and more.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
