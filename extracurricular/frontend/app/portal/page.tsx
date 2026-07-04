@@ -78,10 +78,10 @@ export default function PortalPage() {
           </div>
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl" style={{ color: 'var(--text-primary)' }}>
-              Bootcamp Portal
+              IUC Bootcamp Portal
             </h1>
             <p className="mt-2 text-sm sm:text-base" style={{ color: 'var(--text-secondary)' }}>
-              Sign in for students, supervisors, and administrators
+              Sign in for IUC students, supervisors, and administrators
             </p>
           </div>
           <div className="w-full max-w-md">

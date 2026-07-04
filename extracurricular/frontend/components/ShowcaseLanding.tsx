@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import ThemeToggle from './ThemeToggle';
 import { buttonPrimaryClass, buttonSecondaryClass, linkClass } from '../lib/ui';
 import {
+  IUC_SCHOOL,
   SHOWCASE_COHORTS,
   SHOWCASE_STATS,
   evaluationLabel,
@@ -28,7 +29,7 @@ function ProjectCard({ project }: { project: ShowcaseProject }) {
         <div className="showcase-card-meta">
           <span>{project.bootcampTitle}</span>
           <span>
-            {project.city}, {project.country}
+            {project.city} · {IUC_SCHOOL.name}
           </span>
         </div>
         <h3 className="showcase-card-title">{project.projectTitle}</h3>
@@ -73,8 +74,9 @@ export default function ShowcaseLanding() {
       <header className="showcase-header">
         <div className="showcase-header-inner">
           <div>
-            <p className="showcase-kicker">Bootcamp Project Showcase</p>
-            <h1 className="showcase-brand">African Innovation Gallery</h1>
+            <p className="showcase-kicker">{IUC_SCHOOL.tagline}</p>
+            <h1 className="showcase-brand">{IUC_SCHOOL.fullName}</h1>
+            <p className="showcase-location">{IUC_SCHOOL.location}</p>
           </div>
           <div className="showcase-header-actions">
             <ThemeToggle />
@@ -90,18 +92,18 @@ export default function ShowcaseLanding() {
           <div className="showcase-hero-grid">
             <div>
               <h2 className="showcase-hero-title">
-                Past bootcamp projects built across Africa — by African students, for African communities.
+                Past bootcamp projects built by IUC students — solving real problems in Douala.
               </h2>
               <p className="showcase-hero-desc">
-                Explore standout graduate work from fintech in Douala to civic tech in Maputo. Each project
-                highlights the top-ranked student from its cohort.
+                Explore standout graduate work from fintech to civic tech, all rooted in Douala. Each project
+                highlights the top-ranked IUC student from its cohort.
               </p>
               <div className="showcase-hero-actions">
                 <a href="#gallery" className={buttonPrimaryClass}>
                   Browse projects
                 </a>
                 <Link href="/portal" className={buttonSecondaryClass}>
-                  Join a bootcamp
+                  IUC portal login
                 </Link>
               </div>
             </div>
@@ -119,8 +121,8 @@ export default function ShowcaseLanding() {
                 <p className="showcase-stat-label">Featured projects</p>
               </div>
               <div className="showcase-stat">
-                <p className="showcase-stat-value">{SHOWCASE_STATS.countries}</p>
-                <p className="showcase-stat-label">Countries</p>
+                <p className="showcase-stat-value">{SHOWCASE_STATS.departments}</p>
+                <p className="showcase-stat-label">Departments</p>
               </div>
             </div>
           </div>
@@ -129,7 +131,7 @@ export default function ShowcaseLanding() {
         <section className="showcase-section">
           <div className="showcase-section-head">
             <h2 className="section-title">Top graduates</h2>
-            <p className="section-desc">Highest-ranked builders from recent African bootcamp cohorts.</p>
+            <p className="section-desc">Highest-ranked IUC builders from recent bootcamp cohorts.</p>
           </div>
           <div className="showcase-top-grid">
             {featuredGraduates.map((project, index) => (
@@ -144,7 +146,7 @@ export default function ShowcaseLanding() {
                 <p className="showcase-top-name">{project.studentName}</p>
                 <p className="showcase-top-project">{project.projectTitle}</p>
                 <p className="showcase-top-meta">
-                  {project.marks} marks · {evaluationLabel(project.evaluation)} · {project.city}
+                  {project.marks} marks · {evaluationLabel(project.evaluation)} · IUC · {project.city}
                 </p>
               </article>
             ))}
@@ -156,7 +158,7 @@ export default function ShowcaseLanding() {
             <div>
               <h2 className="section-title">Project gallery</h2>
               <p className="section-desc">
-                Discover solutions shaped by local context — markets, clinics, farms, and cities.
+                Discover solutions shaped by Douala communities — markets, clinics, farms, and neighbourhoods.
               </p>
             </div>
             <div className="showcase-filter-wrap">
@@ -188,7 +190,7 @@ export default function ShowcaseLanding() {
 
       <footer className="showcase-footer glass-panel">
         <p className="showcase-footer-text">
-          Bootcamp Management System · Showcasing African tech talent from Douala to Maputo.
+          {IUC_SCHOOL.fullName} · {IUC_SCHOOL.location} · Showcasing IUC student innovation in Douala.
         </p>
         <Link href="/portal" className={linkClass}>
           Staff, student & supervisor portal →

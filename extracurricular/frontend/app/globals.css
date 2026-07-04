@@ -514,6 +514,11 @@
     color: var(--text-primary);
   }
 
+  .showcase-location {
+    @apply mt-0.5 text-xs sm:text-sm;
+    color: var(--text-secondary);
+  }
+
   .showcase-header-actions {
     @apply flex items-center gap-3;
   }
