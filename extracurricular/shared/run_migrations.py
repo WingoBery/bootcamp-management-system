@@ -2,9 +2,6 @@ import os
 import subprocess
 import sys
 
-from sqlalchemy import create_engine, inspect
-
-
 def main() -> None:
     if len(sys.argv) != 2:
         print("Usage: run_migrations.py <table_name>", file=sys.stderr)
@@ -24,16 +21,6 @@ def main() -> None:
         return
 
     print(f"Alembic upgrade failed with exit code {result.returncode}", file=sys.stderr)
-
-    engine = create_engine(database_url, pool_pre_ping=True)
-    if inspect(engine).has_table(table_name):
-        print(f"Table '{table_name}' already exists; stamping alembic revision as head")
-        stamp_result = subprocess.run(["alembic", "stamp", "head"], check=False)
-        if stamp_result.returncode != 0:
-            sys.exit(stamp_result.returncode)
-        print("Alembic stamp head succeeded")
-        return
-
     sys.exit(result.returncode)
 
 
