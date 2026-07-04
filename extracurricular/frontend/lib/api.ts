@@ -179,6 +179,10 @@ export async function listEnrollments(bootcampId?: number): Promise<EnrollmentDe
   return apiRequest<EnrollmentDetail[]>(`/registrations/enrollments${query}`);
 }
 
+export async function listShowcases(): Promise<Showcase[]> {
+  return apiRequest<Showcase[]>('/showcases/');
+}
+
 export async function listPendingShowcases(supervisorId: number): Promise<Showcase[]> {
   return apiRequest<Showcase[]>(`/showcases/supervisor/${supervisorId}/pending`);
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import AdminOverviewCharts from './AdminOverviewCharts';
 import LoadingSpinner from './LoadingSpinner';
-import StatCard from './StatCard';
-import type { Bootcamp, EnrollmentDetail, User } from '../lib/types';
+import type { Bootcamp, EnrollmentDetail, Showcase, User } from '../lib/types';
+import { buildAdminOverviewMetrics } from '../lib/adminAnalytics';
 import {
   ApiError,
   alertErrorClass,
@@ -17,6 +18,7 @@ import {
   labelClass,
   listBootcamps,
   listEnrollments,
+  listShowcases,
   sectionClass,
   sectionDescClass,
   sectionTitleClass,
@@ -35,6 +37,7 @@ function toIsoFromLocalInput(value: string): string {
 export default function AdminDashboard({ user }: AdminDashboardProps) {
   const [bootcamps, setBootcamps] = useState<Bootcamp[]>([]);
   const [enrollments, setEnrollments] = useState<EnrollmentDetail[]>([]);
+  const [showcases, setShowcases] = useState<Showcase[]>([]);
   const [enrollmentFilter, setEnrollmentFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -52,28 +55,46 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     setLoading(true);
     setError(null);
     try {
-      const bootcampData = await listBootcamps();
+      const [bootcampData, enrollmentData, showcaseData] = await Promise.all([
+        listBootcamps(),
+        listEnrollments(),
+        listShowcases(),
+      ]);
       setBootcamps(bootcampData);
-      setEnrollments(await listEnrollments());
+      setEnrollments(enrollmentData);
+      setShowcases(showcaseData);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Failed to load bootcamps');
+      setError(err instanceof ApiError ? err.message : 'Failed to load admin dashboard');
     } finally {
       setLoading(false);
-    }
-  }, []);
-
-  const loadEnrollments = useCallback(async (bootcampId?: number) => {
-    setError(null);
-    try {
-      setEnrollments(await listEnrollments(bootcampId));
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Failed to load enrollments');
     }
   }, []);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const overviewMetrics = useMemo(
+    () => buildAdminOverviewMetrics(bootcamps, enrollments, showcases),
+    [bootcamps, enrollments, showcases],
+  );
+
+  const reportDate = useMemo(
+    () =>
+      new Date().toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }),
+    [bootcamps, enrollments, showcases],
+  );
+
+  const visibleEnrollments = useMemo(() => {
+    if (enrollmentFilter === '') {
+      return enrollments;
+    }
+    const bootcampId = Number(enrollmentFilter);
+    return enrollments.filter((item) => item.bootcamp_id === bootcampId);
+  }, [enrollmentFilter, enrollments]);
 
   async function handleCreateBootcamp(event: FormEvent) {
     event.preventDefault();
@@ -105,16 +126,8 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     }
   }
 
-  const totalEnrolled = bootcamps.reduce((sum, item) => sum + item.current_registrations, 0);
-  const totalCapacity = bootcamps.reduce((sum, item) => sum + item.max_slots, 0);
-
   async function handleEnrollmentFilterChange(value: string) {
     setEnrollmentFilter(value);
-    if (value === '') {
-      await loadEnrollments();
-      return;
-    }
-    await loadEnrollments(Number(value));
   }
 
   function bootcampTitle(bootcampId: number) {
@@ -127,11 +140,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Bootcamps" value={bootcamps.length} />
-        <StatCard label="Total enrolled" value={totalEnrolled} />
-        <StatCard label="Total capacity" value={totalCapacity} />
-      </div>
+      <AdminOverviewCharts metrics={overviewMetrics} reportDate={reportDate} />
 
       {error && <p className={alertErrorClass}>{error}</p>}
       {message && <p className={alertSuccessClass}>{message}</p>}
@@ -283,8 +292,8 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
         </div>
 
         <div className="mt-5 space-y-2">
-          {enrollments.length === 0 && <p className={emptyStateClass}>No enrollments found.</p>}
-          {enrollments.map((enrollment) => (
+          {visibleEnrollments.length === 0 && <p className={emptyStateClass}>No enrollments found.</p>}
+          {visibleEnrollments.map((enrollment) => (
             <article key={enrollment.id} className={`${innerItemClass} text-sm`}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>

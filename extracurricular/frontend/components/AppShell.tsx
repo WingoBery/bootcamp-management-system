@@ -17,6 +17,17 @@ function NavIcon({ id }: { id: string }) {
   const props = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': true as const };
 
   switch (id) {
+    case 'overview':
+      return (
+        <svg {...props}>
+          <path
+            d="M4 19V5M10 19V9M16 19V13M22 19V7"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
     case 'bootcamps':
     case 'all-bootcamps':
       return (

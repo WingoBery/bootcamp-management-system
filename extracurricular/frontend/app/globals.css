@@ -25,6 +25,9 @@
     --danger-text: #d70015;
     --success-bg: rgba(52, 199, 89, 0.12);
     --success-text: #248a3d;
+    --chart-graded: #34c759;
+    --chart-pending: #ff9f0a;
+    --chart-missing: #8e8e93;
   }
 
   .dark {
@@ -49,6 +52,9 @@
     --danger-text: #ff6961;
     --success-bg: rgba(48, 209, 88, 0.14);
     --success-text: #30d158;
+    --chart-graded: #30d158;
+    --chart-pending: #ff9f0a;
+    --chart-missing: #636366;
   }
 
   html {
@@ -280,6 +286,119 @@
   }
 
   .loading-text {
+    color: var(--text-secondary);
+  }
+
+  .chart-report-badge {
+    @apply rounded-full px-3 py-1 text-xs font-medium;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .chart-card-title {
+    @apply text-sm font-semibold;
+    color: var(--text-primary);
+  }
+
+  .chart-card-desc {
+    @apply mt-1 text-xs leading-relaxed;
+    color: var(--text-secondary);
+  }
+
+  .chart-empty {
+    @apply mt-4 text-sm;
+    color: var(--text-secondary);
+  }
+
+  .chart-bar-header {
+    @apply mb-1.5 flex items-center justify-between gap-2 text-xs;
+  }
+
+  .chart-bar-label {
+    @apply truncate font-medium;
+    color: var(--text-primary);
+  }
+
+  .chart-bar-value {
+    @apply shrink-0;
+    color: var(--text-tertiary);
+  }
+
+  .chart-bar-track {
+    @apply h-2.5 overflow-hidden rounded-full;
+    background: var(--glass-inner);
+  }
+
+  .chart-bar-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-apple;
+    background: linear-gradient(90deg, var(--accent), rgba(90, 200, 250, 0.95));
+  }
+
+  .chart-donut-wrap {
+    @apply relative h-36 w-36 shrink-0;
+  }
+
+  .chart-donut {
+    @apply h-full w-full;
+  }
+
+  .chart-donut-segment {
+    transition: stroke-dasharray 0.6s ease-apple;
+  }
+
+  .chart-donut-center {
+    @apply absolute inset-0 flex flex-col items-center justify-center;
+  }
+
+  .chart-donut-total {
+    @apply text-2xl font-semibold;
+    color: var(--text-primary);
+  }
+
+  .chart-donut-caption {
+    @apply text-xs uppercase tracking-wide;
+    color: var(--text-tertiary);
+  }
+
+  .chart-legend {
+    @apply space-y-2 text-sm;
+    color: var(--text-secondary);
+  }
+
+  .chart-legend li {
+    @apply flex items-center gap-2;
+  }
+
+  .chart-legend-dot {
+    @apply h-2.5 w-2.5 shrink-0 rounded-full;
+  }
+
+  .chart-legend strong {
+    @apply ml-1 font-semibold;
+    color: var(--text-primary);
+  }
+
+  .chart-column-group {
+    @apply flex h-40 flex-1 flex-col items-center justify-end gap-2;
+  }
+
+  .chart-column-value {
+    @apply min-h-[1rem] text-xs font-medium;
+    color: var(--text-secondary);
+  }
+
+  .chart-column {
+    @apply w-full max-w-[2.75rem] rounded-t-xl transition-all duration-500 ease-apple;
+    background: linear-gradient(180deg, var(--accent), rgba(0, 122, 255, 0.45));
+  }
+
+  .chart-column-label {
+    @apply text-center text-[10px] leading-tight sm:text-xs;
+    color: var(--text-tertiary);
+  }
+
+  .chart-report-list {
+    @apply list-disc pl-5 text-sm leading-relaxed;
     color: var(--text-secondary);
   }
 }
