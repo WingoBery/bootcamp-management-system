@@ -47,6 +47,18 @@ function NavIcon({ id }: { id: string }) {
           />
         </svg>
       );
+    case 'grading':
+      return (
+        <svg {...props}>
+          <path
+            d="M8 21h8M12 17V7.5M9.5 10 12 7.5 14.5 10M6 4h12l1 4H5l1-4Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
     case 'submit-project':
     case 'new-bootcamp':
       return (

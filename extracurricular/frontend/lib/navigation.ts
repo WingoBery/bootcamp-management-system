@@ -10,6 +10,7 @@ export function getNavItemsForRole(role: UserRole): NavItem[] {
     case 'admin':
       return [
         { id: 'overview', label: 'Overview' },
+        { id: 'grading', label: 'Grades & rankings' },
         { id: 'new-bootcamp', label: 'New bootcamp' },
         { id: 'all-bootcamps', label: 'All bootcamps' },
         { id: 'enrollments', label: 'Enrollments' },

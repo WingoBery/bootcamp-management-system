@@ -401,4 +401,79 @@
     @apply list-disc pl-5 text-sm leading-relaxed;
     color: var(--text-secondary);
   }
+
+  .grade-report-card {
+    @apply p-4 sm:p-5;
+  }
+
+  .grade-top-badge {
+    @apply rounded-2xl border px-3 py-2 text-right;
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+
+  .grade-top-label {
+    @apply block text-[10px] font-semibold uppercase tracking-wide;
+    color: var(--accent);
+  }
+
+  .grade-top-name {
+    @apply block text-sm font-semibold;
+    color: var(--text-primary);
+  }
+
+  .grade-top-score {
+    @apply block text-xs;
+    color: var(--text-secondary);
+  }
+
+  .grade-table-wrap {
+    @apply rounded-2xl border;
+    border-color: var(--glass-border);
+  }
+
+  .grade-table {
+    @apply w-full min-w-[720px] text-left text-sm;
+  }
+
+  .grade-table th {
+    @apply border-b px-3 py-2.5 text-xs font-semibold uppercase tracking-wide;
+    color: var(--text-tertiary);
+    border-color: var(--divider);
+    background: var(--glass-inner);
+  }
+
+  .grade-table td {
+    @apply border-b px-3 py-3 align-top;
+    color: var(--text-secondary);
+    border-color: var(--divider);
+  }
+
+  .grade-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .grade-row-top {
+    background: var(--accent-soft);
+  }
+
+  .grade-rank {
+    @apply inline-flex min-w-[2rem] justify-center rounded-full px-2 py-0.5 text-xs font-semibold;
+    background: var(--glass-inner);
+    color: var(--text-primary);
+  }
+
+  .grade-rank-first {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .grade-marks {
+    @apply font-semibold;
+    color: var(--text-primary);
+  }
+
+  .grade-feedback-cell {
+    @apply max-w-[14rem] truncate;
+  }
 }

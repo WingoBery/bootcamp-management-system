@@ -1,10 +1,11 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import AdminGradingLeaderboard from './AdminGradingLeaderboard';
 import AdminOverviewCharts from './AdminOverviewCharts';
 import LoadingSpinner from './LoadingSpinner';
 import type { Bootcamp, EnrollmentDetail, Showcase, User } from '../lib/types';
-import { buildAdminOverviewMetrics } from '../lib/adminAnalytics';
+import { buildAdminOverviewMetrics, buildBootcampGradeReports } from '../lib/adminAnalytics';
 import {
   ApiError,
   alertErrorClass,
@@ -79,6 +80,11 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
     [bootcamps, enrollments, showcases],
   );
 
+  const gradeReports = useMemo(
+    () => buildBootcampGradeReports(bootcamps, enrollments, showcases),
+    [bootcamps, enrollments, showcases],
+  );
+
   const reportDate = useMemo(
     () =>
       new Date().toLocaleString(undefined, {
@@ -141,6 +147,7 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
   return (
     <div className="space-y-6">
       <AdminOverviewCharts metrics={overviewMetrics} reportDate={reportDate} />
+      <AdminGradingLeaderboard reports={gradeReports} />
 
       {error && <p className={alertErrorClass}>{error}</p>}
       {message && <p className={alertSuccessClass}>{message}</p>}
