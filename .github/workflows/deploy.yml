@@ -165,24 +165,58 @@ jobs:
             fi
             docker compose ${COMPOSE_ARGS} ps
 
-            echo "Waiting for backend services to finish migrations and startup..."
-            sleep 90
+            echo "Waiting for backend services to become healthy..."
+            BACKEND_OK=false
+            for i in $(seq 1 60); do
+              BACKEND_OK=true
+              for svc in user_service bootcamp_service registration_service showcase_service; do
+                HEALTH_STATUS=$(docker compose ${COMPOSE_ARGS} ps "$svc" --format '{{.Health}}' 2>/dev/null || echo "missing")
+                if [ "$HEALTH_STATUS" != "healthy" ]; then
+                  echo "Attempt ${i}/60: ${svc} is ${HEALTH_STATUS}"
+                  BACKEND_OK=false
+                  break
+                fi
+              done
+              if [ "$BACKEND_OK" = "true" ]; then
+                echo "All backend services are healthy."
+                break
+              fi
+              sleep 5
+            done
 
-            echo "Waiting for gateway /health endpoint..."
+            if [ "$BACKEND_OK" != "true" ]; then
+              echo "ERROR: Backend services did not become healthy in time."
+              log_failure
+              exit 1
+            fi
+
+            echo "Verifying Docker DNS from gateway..."
+            docker compose ${COMPOSE_ARGS} exec -T gateway python -c "
+import socket
+for host in ['user_service', 'bootcamp_service', 'registration_service', 'showcase_service']:
+    socket.gethostbyname(host)
+print('Docker DNS resolution OK')
+"
+
+            echo "Recycling gateway to refresh upstream connections..."
+            docker compose ${COMPOSE_ARGS} up -d --force-recreate gateway
+            sleep 10
+
+            echo "Waiting for gateway /ready endpoint..."
             HEALTH_OK=false
             for i in $(seq 1 45); do
-              if curl -fsS http://127.0.0.1:8000/health; then
+              if curl -fsS http://127.0.0.1:8000/ready; then
                 echo ""
                 echo "Deployment verified successfully."
                 HEALTH_OK=true
                 break
               fi
-              echo "Attempt ${i}/45: gateway not ready yet, retrying in 5s..."
+              echo "Attempt ${i}/45: gateway /ready not OK yet, retrying in 5s..."
               sleep 5
             done
 
             if [ "$HEALTH_OK" != "true" ]; then
-              echo "ERROR: Gateway health check failed after 45 attempts."
+              echo "ERROR: Gateway readiness check failed after 45 attempts."
               log_failure
               exit 1
             fi

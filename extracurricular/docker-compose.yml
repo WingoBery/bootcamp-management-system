@@ -1,5 +1,6 @@
 networks:
   bootcamp-net:
+    name: bootcamp-net
     driver: bridge
 
 volumes:
@@ -180,13 +181,13 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-development}
     depends_on:
       user_service:
-        condition: service_started
+        condition: service_healthy
       bootcamp_service:
-        condition: service_started
+        condition: service_healthy
       registration_service:
-        condition: service_started
+        condition: service_healthy
       showcase_service:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "${GATEWAY_PORT:-8000}:8000"
     healthcheck:
