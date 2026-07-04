@@ -191,12 +191,7 @@ jobs:
             fi
 
             echo "Verifying Docker DNS from gateway..."
-            docker compose ${COMPOSE_ARGS} exec -T gateway python -c "
-import socket
-for host in ['user_service', 'bootcamp_service', 'registration_service', 'showcase_service']:
-    socket.gethostbyname(host)
-print('Docker DNS resolution OK')
-"
+            docker compose ${COMPOSE_ARGS} exec -T gateway python -c "import socket; [socket.gethostbyname(h) for h in ('user_service', 'bootcamp_service', 'registration_service', 'showcase_service')]; print('Docker DNS resolution OK')"
 
             echo "Recycling gateway to refresh upstream connections..."
             docker compose ${COMPOSE_ARGS} up -d --force-recreate gateway
