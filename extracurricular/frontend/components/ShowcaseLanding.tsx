@@ -5,12 +5,11 @@ import { useEffect, useMemo, useState } from 'react';
 import ProjectCarousel from './ProjectCarousel';
 import ShowcaseImage from './ShowcaseImage';
 import ThemeToggle from './ThemeToggle';
-import { buttonPrimaryClass, buttonSecondaryClass, linkClass } from '../lib/ui';
+import { buttonSecondaryClass, linkClass } from '../lib/ui';
 import {
   IUC_SCHOOL,
   ISTOCK_PHOTO_CREDIT,
   SHOWCASE_COHORTS,
-  SHOWCASE_STATS,
   evaluationLabel,
   filterShowcaseProjects,
   type ShowcaseProject,
@@ -133,46 +132,6 @@ export default function ShowcaseLanding() {
       </header>
 
       <main className="showcase-main">
-        <section className="showcase-hero glass-panel">
-          <div className="showcase-hero-grid">
-            <div>
-              <h2 className="showcase-hero-title">
-                Past bootcamp projects built by IUC students — solving real problems in Douala.
-              </h2>
-              <p className="showcase-hero-desc">
-                Browse the featured carousel below or explore the full gallery. Each project highlights the
-                top-ranked IUC student from its cohort.
-              </p>
-              <div className="showcase-hero-actions">
-                <a href="#featured-carousel" className={buttonPrimaryClass}>
-                  View featured projects
-                </a>
-                <Link href="/portal" className={buttonSecondaryClass}>
-                  IUC portal login
-                </Link>
-              </div>
-            </div>
-            <div className="showcase-stats-grid">
-              <div className="showcase-stat">
-                <p className="showcase-stat-value">{SHOWCASE_STATS.bootcamps}</p>
-                <p className="showcase-stat-label">Bootcamps</p>
-              </div>
-              <div className="showcase-stat">
-                <p className="showcase-stat-value">{SHOWCASE_STATS.graduates}</p>
-                <p className="showcase-stat-label">Graduates</p>
-              </div>
-              <div className="showcase-stat">
-                <p className="showcase-stat-value">{SHOWCASE_STATS.featuredProjects}</p>
-                <p className="showcase-stat-label">Featured projects</p>
-              </div>
-              <div className="showcase-stat">
-                <p className="showcase-stat-value">{SHOWCASE_STATS.departments}</p>
-                <p className="showcase-stat-label">Departments</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section id="featured-carousel" className="showcase-section">
           <div className="showcase-section-head">
             <h2 className="section-title">Featured project carousel</h2>
