@@ -8,6 +8,7 @@ import ThemeToggle from './ThemeToggle';
 import { buttonPrimaryClass, buttonSecondaryClass, linkClass } from '../lib/ui';
 import {
   IUC_SCHOOL,
+  ISTOCK_PHOTO_CREDIT,
   SHOWCASE_COHORTS,
   SHOWCASE_STATS,
   evaluationLabel,
@@ -247,9 +248,19 @@ export default function ShowcaseLanding() {
       </main>
 
       <footer className="showcase-footer glass-panel">
-        <p className="showcase-footer-text">
-          {IUC_SCHOOL.fullName} · {IUC_SCHOOL.location} · Showcasing IUC student innovation in Douala.
-        </p>
+        <div>
+          <p className="showcase-footer-text">
+            {IUC_SCHOOL.fullName} · {IUC_SCHOOL.location} · Showcasing IUC student innovation in Douala.
+          </p>
+          <a
+            href={ISTOCK_PHOTO_CREDIT.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="showcase-photo-credit"
+          >
+            {ISTOCK_PHOTO_CREDIT.label}
+          </a>
+        </div>
         <Link href="/portal" className={linkClass}>
           Staff, student & supervisor portal →
         </Link>

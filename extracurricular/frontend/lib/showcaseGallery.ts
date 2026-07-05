@@ -1,15 +1,26 @@
-const PEXELS_BASE = 'https://images.pexels.com/photos';
+const ISTOCK_MEDIA = 'https://media.istockphoto.com';
 
-export const SHOWCASE_FALLBACK_IMAGE =
-  `${PEXELS_BASE}/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop`;
-
-export function pexelsImage(photoId: number, width = 1200, height = 800): string {
-  return `${PEXELS_BASE}/${photoId}/pexels-photo-${photoId}.jpeg?auto=compress&cs=tinysrgb&w=${width}&h=${height}&fit=crop`;
+interface IStockPhoto {
+  id: number;
+  slug: string;
+  hash: string;
 }
 
-export function pexelsPortrait(photoId: number, size = 400): string {
-  return pexelsImage(photoId, size, size);
+/** Verified preview URLs from iStock's African students / university collection. */
+function istockImage(photo: IStockPhoto): string {
+  return `${ISTOCK_MEDIA}/id/${photo.id}/photo/${photo.slug}.jpg?s=612x612&w=0&k=20&c=${photo.hash}`;
 }
+
+export const ISTOCK_PHOTO_CREDIT = {
+  label: 'Student photos courtesy of iStock',
+  url: 'https://www.istockphoto.com/photos/african-students-university',
+};
+
+export const SHOWCASE_FALLBACK_IMAGE = istockImage({
+  id: 1588289977,
+  slug: 'happy-black-females-student-during-a-class-in-lecture-hall-looking-at-camera',
+  hash: 'o2l4DsMWHhZ3Oqq8hxrGoKqJfC1S2kAfnjUHlRJuD-k=',
+});
 
 export interface ShowcaseProject {
   id: string;
@@ -65,8 +76,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 96,
     evaluation: 'distinction',
     rankLabel: '#1 · Fintech Builders',
-    imageUrl: pexelsImage(5212345),
-    portraitUrl: pexelsPortrait(5212345),
+    imageUrl: istockImage({
+      id: 1144287280,
+      slug: 'focused-african-student-looking-at-laptop-holding-book-doing-research',
+      hash: 'Ee2sGNsiZXbkCchKwZPX8Z9JDzcBscr4fGAjx5kDnUc=',
+    }),
+    portraitUrl: istockImage({
+      id: 1144287280,
+      slug: 'focused-african-student-looking-at-laptop-holding-book-doing-research',
+      hash: 'Ee2sGNsiZXbkCchKwZPX8Z9JDzcBscr4fGAjx5kDnUc=',
+    }),
     imageAlt: 'IUC student Amadou Njie developing a fintech application on laptop',
     tags: ['Fintech', 'Mobile', 'Orange Money'],
   },
@@ -84,8 +103,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 94,
     evaluation: 'distinction',
     rankLabel: '#1 · AgriTech',
-    imageUrl: pexelsImage(8460497),
-    portraitUrl: pexelsPortrait(8460497),
+    imageUrl: istockImage({
+      id: 1303837116,
+      slug: 'group-of-five-african-college-students',
+      hash: '06l5h2EBy6QVdnS6XEiykb-vtMIb3gFfAxrJQy7TdLA=',
+    }),
+    portraitUrl: istockImage({
+      id: 1303837116,
+      slug: 'group-of-five-african-college-students',
+      hash: '06l5h2EBy6QVdnS6XEiykb-vtMIb3gFfAxrJQy7TdLA=',
+    }),
     imageAlt: 'IUC student Aïcha Mbarga working on agricultural technology software',
     tags: ['AgriTech', 'SMS', 'Marketplace'],
   },
@@ -103,8 +130,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 97,
     evaluation: 'distinction',
     rankLabel: '#1 · All cohorts',
-    imageUrl: pexelsImage(7947615),
-    portraitUrl: pexelsPortrait(7947615),
+    imageUrl: istockImage({
+      id: 1588289977,
+      slug: 'happy-black-females-student-during-a-class-in-lecture-hall-looking-at-camera',
+      hash: 'o2l4DsMWHhZ3Oqq8hxrGoKqJfC1S2kAfnjUHlRJuD-k=',
+    }),
+    portraitUrl: istockImage({
+      id: 1588289977,
+      slug: 'happy-black-females-student-during-a-class-in-lecture-hall-looking-at-camera',
+      hash: 'o2l4DsMWHhZ3Oqq8hxrGoKqJfC1S2kAfnjUHlRJuD-k=',
+    }),
     imageAlt: 'IUC student Grace Ewane presenting her health-tech clinic dashboard',
     tags: ['HealthTech', 'WhatsApp', 'Public sector'],
   },
@@ -122,8 +157,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 92,
     evaluation: 'distinction',
     rankLabel: '#1 · Green Energy',
-    imageUrl: pexelsImage(5212360),
-    portraitUrl: pexelsPortrait(5212360),
+    imageUrl: istockImage({
+      id: 1351445530,
+      slug: 'african-student-sitting-in-classroom',
+      hash: '1ICaZ03iFLzDmxfBkfDkmBGSgj1SDEpsM3eSDgB1KBk=',
+    }),
+    portraitUrl: istockImage({
+      id: 1351445530,
+      slug: 'african-student-sitting-in-classroom',
+      hash: '1ICaZ03iFLzDmxfBkfDkmBGSgj1SDEpsM3eSDgB1KBk=',
+    }),
     imageAlt: 'IUC student Jean-Paul Fotso presenting a clean-energy monitoring project',
     tags: ['Clean energy', 'IoT', 'Rural'],
   },
@@ -141,8 +184,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 91,
     evaluation: 'merit',
     rankLabel: '#1 · EdTech',
-    imageUrl: pexelsImage(7710227),
-    portraitUrl: pexelsPortrait(7710227),
+    imageUrl: istockImage({
+      id: 1370433251,
+      slug: 'black-woman-sitting-at-desk-using-computer-writing-in-notebook',
+      hash: 'rHpy3cX4LVFtzLI4gyy0T-fNYdTeAcdNQgTmy9maAIA=',
+    }),
+    portraitUrl: istockImage({
+      id: 1370433251,
+      slug: 'black-woman-sitting-at-desk-using-computer-writing-in-notebook',
+      hash: 'rHpy3cX4LVFtzLI4gyy0T-fNYdTeAcdNQgTmy9maAIA=',
+    }),
     imageAlt: 'IUC student Marie-Claire Nguema collaborating on EduTrack campus software',
     tags: ['EdTech', 'Offline-first', 'Campus'],
   },
@@ -160,8 +211,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 89,
     evaluation: 'merit',
     rankLabel: '#1 · Coastal Commerce',
-    imageUrl: pexelsImage(9034093),
-    portraitUrl: pexelsPortrait(9034093),
+    imageUrl: istockImage({
+      id: 1369136607,
+      slug: 'positive-millennial-black-man-student-with-books-on-yellow',
+      hash: 'KkmEBqprvv39OzUniJwu401Y59ZZ-k1Crt-Fowxn2CI=',
+    }),
+    portraitUrl: istockImage({
+      id: 1369136607,
+      slug: 'positive-millennial-black-man-student-with-books-on-yellow',
+      hash: 'KkmEBqprvv39OzUniJwu401Y59ZZ-k1Crt-Fowxn2CI=',
+    }),
     imageAlt: 'IUC student Samuel Bekono developing a coastal commerce mobile app',
     tags: ['Marketplace', 'Fisheries', 'Mobile web'],
   },
@@ -179,8 +238,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 88,
     evaluation: 'merit',
     rankLabel: '#1 · Urban Mobility',
-    imageUrl: pexelsImage(5688577),
-    portraitUrl: pexelsPortrait(5688577),
+    imageUrl: istockImage({
+      id: 1334063560,
+      slug: 'african-americans-college-students-e-leaning-with-their-teacher-during-a-class',
+      hash: '6ADofCPEBlGPK1MFGM44sfdCe9sjMzzzzK0MkZTcLw8=',
+    }),
+    portraitUrl: istockImage({
+      id: 1334063560,
+      slug: 'african-americans-college-students-e-leaning-with-their-teacher-during-a-class',
+      hash: '6ADofCPEBlGPK1MFGM44sfdCe9sjMzzzzK0MkZTcLw8=',
+    }),
     imageAlt: 'IUC student Diane Manga building an urban mobility application',
     tags: ['Mobility', 'Maps', 'Community'],
   },
@@ -198,8 +265,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 90,
     evaluation: 'merit',
     rankLabel: '#1 · Creative Economy',
-    imageUrl: pexelsImage(7733259),
-    portraitUrl: pexelsPortrait(7733259),
+    imageUrl: istockImage({
+      id: 1311107708,
+      slug: 'focused-cute-stylish-african-american-female-student-with-afro-dreadlocks-studying-remotely',
+      hash: 'OwxBza5YzLWkE_2abTKqLLW4hwhmM2PW9BotzOMMS5w=',
+    }),
+    portraitUrl: istockImage({
+      id: 1311107708,
+      slug: 'focused-cute-stylish-african-american-female-student-with-afro-dreadlocks-studying-remotely',
+      hash: 'OwxBza5YzLWkE_2abTKqLLW4hwhmM2PW9BotzOMMS5w=',
+    }),
     imageAlt: 'IUC student Tendong Cynthia showcasing artisan e-commerce platform',
     tags: ['E-commerce', 'Crafts', 'Mobile Money'],
   },
@@ -217,8 +292,16 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 93,
     evaluation: 'distinction',
     rankLabel: '#1 · Civic Tech',
-    imageUrl: pexelsImage(8460504),
-    portraitUrl: pexelsPortrait(8460504),
+    imageUrl: istockImage({
+      id: 1349258040,
+      slug: 'teenager-doing-homework-side-view',
+      hash: 'tvcgOAVRuE-ukYQnC1Q1RYWCmzblzWlPCsF0Ci5t-5k=',
+    }),
+    portraitUrl: istockImage({
+      id: 1349258040,
+      slug: 'teenager-doing-homework-side-view',
+      hash: 'tvcgOAVRuE-ukYQnC1Q1RYWCmzblzWlPCsF0Ci5t-5k=',
+    }),
     imageAlt: 'IUC student Ibrahim Mohamadou working on a civic water-reporting platform',
     tags: ['Civic tech', 'GIS', 'Community'],
   },
