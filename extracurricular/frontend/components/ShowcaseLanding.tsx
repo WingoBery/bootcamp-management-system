@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import ProjectCarousel from './ProjectCarousel';
+import ShowcaseImage from './ShowcaseImage';
 import ThemeToggle from './ThemeToggle';
 import { buttonPrimaryClass, buttonSecondaryClass, linkClass } from '../lib/ui';
 import {
@@ -13,51 +15,71 @@ import {
   type ShowcaseProject,
 } from '../lib/showcaseGallery';
 
-function ProjectCard({ project }: { project: ShowcaseProject }) {
+function ProjectCard({
+  project,
+  isActive,
+  onSelect,
+}: {
+  project: ShowcaseProject;
+  isActive: boolean;
+  onSelect: () => void;
+}) {
   const isChampion = project.rankLabel.includes('All cohorts');
 
   return (
-    <article className={`showcase-card ${isChampion ? 'showcase-card-champion' : ''}`}>
-      <div className="showcase-card-image-wrap">
-        <img src={project.imageUrl} alt={project.imageAlt} className="showcase-card-image" loading="lazy" />
-        <div className="showcase-card-overlay">
-          <span className="showcase-rank-pill">{project.rankLabel}</span>
-          {isChampion && <span className="showcase-champion-pill">Showcase champion</span>}
-        </div>
-      </div>
-      <div className="showcase-card-body">
-        <div className="showcase-card-meta">
-          <span>{project.bootcampTitle}</span>
-          <span>
-            {project.city} · {IUC_SCHOOL.name}
-          </span>
-        </div>
-        <h3 className="showcase-card-title">{project.projectTitle}</h3>
-        <p className="showcase-card-desc">{project.description}</p>
-        <div className="showcase-student-row">
-          <div>
-            <p className="showcase-student-label">{project.studentRole}</p>
-            <p className="showcase-student-name">{project.studentName}</p>
-          </div>
-          <div className="showcase-grade-block">
-            <p className="showcase-grade-marks">{project.marks}</p>
-            <p className="showcase-grade-eval">{evaluationLabel(project.evaluation)}</p>
+    <article
+      className={`showcase-card ${isChampion ? 'showcase-card-champion' : ''} ${isActive ? 'showcase-card-active' : ''}`}
+    >
+      <button type="button" className="showcase-card-hit" onClick={onSelect} aria-label={`View ${project.projectTitle} in carousel`}>
+        <div className="showcase-card-image-wrap">
+          <ShowcaseImage src={project.imageUrl} alt={project.imageAlt} className="showcase-card-image" />
+          <div className="showcase-card-overlay">
+            <span className="showcase-rank-pill">{project.rankLabel}</span>
+            {isChampion && <span className="showcase-champion-pill">Showcase champion</span>}
           </div>
         </div>
-        <ul className="showcase-tag-list">
-          {project.tags.map((tag) => (
-            <li key={tag} className="showcase-tag">
-              {tag}
-            </li>
-          ))}
-        </ul>
-      </div>
+        <div className="showcase-card-body">
+          <div className="showcase-card-meta">
+            <span>{project.bootcampTitle}</span>
+            <span>
+              {project.city} · {IUC_SCHOOL.name}
+            </span>
+          </div>
+          <h3 className="showcase-card-title">{project.projectTitle}</h3>
+          <p className="showcase-card-desc">{project.description}</p>
+          <div className="showcase-student-row">
+            <div className="showcase-student-info">
+              <ShowcaseImage
+                src={project.portraitUrl}
+                alt={project.studentName}
+                className="showcase-card-portrait"
+              />
+              <div>
+                <p className="showcase-student-label">{project.studentRole}</p>
+                <p className="showcase-student-name">{project.studentName}</p>
+              </div>
+            </div>
+            <div className="showcase-grade-block">
+              <p className="showcase-grade-marks">{project.marks}</p>
+              <p className="showcase-grade-eval">{evaluationLabel(project.evaluation)}</p>
+            </div>
+          </div>
+          <ul className="showcase-tag-list">
+            {project.tags.map((tag) => (
+              <li key={tag} className="showcase-tag">
+                {tag}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </button>
     </article>
   );
 }
 
 export default function ShowcaseLanding() {
   const [cohortFilter, setCohortFilter] = useState('all');
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const projects = useMemo(() => filterShowcaseProjects(cohortFilter), [cohortFilter]);
   const featuredGraduates = useMemo(
@@ -68,6 +90,28 @@ export default function ShowcaseLanding() {
         .slice(0, 3),
     [],
   );
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [cohortFilter]);
+
+  useEffect(() => {
+    if (activeIndex >= projects.length) {
+      setActiveIndex(0);
+    }
+  }, [activeIndex, projects.length]);
+
+  function scrollToCarousel() {
+    document.getElementById('featured-carousel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function handleCardSelect(projectId: string) {
+    const index = projects.findIndex((project) => project.id === projectId);
+    if (index >= 0) {
+      setActiveIndex(index);
+      scrollToCarousel();
+    }
+  }
 
   return (
     <div className="showcase-page app-canvas min-h-screen">
@@ -95,12 +139,12 @@ export default function ShowcaseLanding() {
                 Past bootcamp projects built by IUC students — solving real problems in Douala.
               </h2>
               <p className="showcase-hero-desc">
-                Explore standout graduate work from fintech to civic tech, all rooted in Douala. Each project
-                highlights the top-ranked IUC student from its cohort.
+                Browse the featured carousel below or explore the full gallery. Each project highlights the
+                top-ranked IUC student from its cohort.
               </p>
               <div className="showcase-hero-actions">
-                <a href="#gallery" className={buttonPrimaryClass}>
-                  Browse projects
+                <a href="#featured-carousel" className={buttonPrimaryClass}>
+                  View featured projects
                 </a>
                 <Link href="/portal" className={buttonSecondaryClass}>
                   IUC portal login
@@ -128,6 +172,16 @@ export default function ShowcaseLanding() {
           </div>
         </section>
 
+        <section id="featured-carousel" className="showcase-section">
+          <div className="showcase-section-head">
+            <h2 className="section-title">Featured project carousel</h2>
+            <p className="section-desc">
+              Swipe through standout IUC graduate work. Use the thumbnails or arrows to explore each project.
+            </p>
+          </div>
+          <ProjectCarousel projects={projects} activeIndex={activeIndex} onSelect={setActiveIndex} />
+        </section>
+
         <section className="showcase-section">
           <div className="showcase-section-head">
             <h2 className="section-title">Top graduates</h2>
@@ -137,11 +191,10 @@ export default function ShowcaseLanding() {
             {featuredGraduates.map((project, index) => (
               <article key={project.id} className="showcase-top-card glass-panel">
                 <span className="showcase-top-rank">#{index + 1}</span>
-                <img
-                  src={project.imageUrl}
+                <ShowcaseImage
+                  src={project.portraitUrl}
                   alt={project.studentName}
                   className="showcase-top-avatar"
-                  loading="lazy"
                 />
                 <p className="showcase-top-name">{project.studentName}</p>
                 <p className="showcase-top-project">{project.projectTitle}</p>
@@ -158,7 +211,7 @@ export default function ShowcaseLanding() {
             <div>
               <h2 className="section-title">Project gallery</h2>
               <p className="section-desc">
-                Discover solutions shaped by Douala communities — markets, clinics, farms, and neighbourhoods.
+                Tap a card to jump to that project in the carousel above.
               </p>
             </div>
             <div className="showcase-filter-wrap">
@@ -181,8 +234,13 @@ export default function ShowcaseLanding() {
           </div>
 
           <div className="showcase-gallery-grid">
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+            {projects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                isActive={index === activeIndex}
+                onSelect={() => handleCardSelect(project.id)}
+              />
             ))}
           </div>
         </section>

@@ -1,3 +1,16 @@
+const PEXELS_BASE = 'https://images.pexels.com/photos';
+
+export const SHOWCASE_FALLBACK_IMAGE =
+  `${PEXELS_BASE}/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop`;
+
+export function pexelsImage(photoId: number, width = 1200, height = 800): string {
+  return `${PEXELS_BASE}/${photoId}/pexels-photo-${photoId}.jpeg?auto=compress&cs=tinysrgb&w=${width}&h=${height}&fit=crop`;
+}
+
+export function pexelsPortrait(photoId: number, size = 400): string {
+  return pexelsImage(photoId, size, size);
+}
+
 export interface ShowcaseProject {
   id: string;
   projectTitle: string;
@@ -12,6 +25,7 @@ export interface ShowcaseProject {
   evaluation: 'distinction' | 'merit' | 'pass';
   rankLabel: string;
   imageUrl: string;
+  portraitUrl: string;
   imageAlt: string;
   tags: string[];
 }
@@ -51,7 +65,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 96,
     evaluation: 'distinction',
     rankLabel: '#1 · Fintech Builders',
-    imageUrl: 'https://images.unsplash.com/photo-1580894732444-38ec56ead4a4?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(5212345),
+    portraitUrl: pexelsPortrait(5212345),
     imageAlt: 'IUC student Amadou Njie developing a fintech application on laptop',
     tags: ['Fintech', 'Mobile', 'Orange Money'],
   },
@@ -69,7 +84,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 94,
     evaluation: 'distinction',
     rankLabel: '#1 · AgriTech',
-    imageUrl: 'https://images.unsplash.com/photo-1664575602270-0960883c3144?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(8460497),
+    portraitUrl: pexelsPortrait(8460497),
     imageAlt: 'IUC student Aïcha Mbarga working on agricultural technology software',
     tags: ['AgriTech', 'SMS', 'Marketplace'],
   },
@@ -87,7 +103,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 97,
     evaluation: 'distinction',
     rankLabel: '#1 · All cohorts',
-    imageUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c488b398?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(7947615),
+    portraitUrl: pexelsPortrait(7947615),
     imageAlt: 'IUC student Grace Ewane presenting her health-tech clinic dashboard',
     tags: ['HealthTech', 'WhatsApp', 'Public sector'],
   },
@@ -105,7 +122,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 92,
     evaluation: 'distinction',
     rankLabel: '#1 · Green Energy',
-    imageUrl: 'https://images.unsplash.com/photo-1595152770828-7808147258ee?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(5212360),
+    portraitUrl: pexelsPortrait(5212360),
     imageAlt: 'IUC student Jean-Paul Fotso presenting a clean-energy monitoring project',
     tags: ['Clean energy', 'IoT', 'Rural'],
   },
@@ -123,7 +141,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 91,
     evaluation: 'merit',
     rankLabel: '#1 · EdTech',
-    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(7710227),
+    portraitUrl: pexelsPortrait(7710227),
     imageAlt: 'IUC student Marie-Claire Nguema collaborating on EduTrack campus software',
     tags: ['EdTech', 'Offline-first', 'Campus'],
   },
@@ -141,7 +160,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 89,
     evaluation: 'merit',
     rankLabel: '#1 · Coastal Commerce',
-    imageUrl: 'https://images.unsplash.com/photo-1519085360353-f0218a371683?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(9034093),
+    portraitUrl: pexelsPortrait(9034093),
     imageAlt: 'IUC student Samuel Bekono developing a coastal commerce mobile app',
     tags: ['Marketplace', 'Fisheries', 'Mobile web'],
   },
@@ -159,7 +179,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 88,
     evaluation: 'merit',
     rankLabel: '#1 · Urban Mobility',
-    imageUrl: 'https://images.unsplash.com/photo-1573167236862-1b97f47655fe?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(5688577),
+    portraitUrl: pexelsPortrait(5688577),
     imageAlt: 'IUC student Diane Manga building an urban mobility application',
     tags: ['Mobility', 'Maps', 'Community'],
   },
@@ -177,7 +198,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 90,
     evaluation: 'merit',
     rankLabel: '#1 · Creative Economy',
-    imageUrl: 'https://images.unsplash.com/photo-1622297635465-6ec0590e037f?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(7733259),
+    portraitUrl: pexelsPortrait(7733259),
     imageAlt: 'IUC student Tendong Cynthia showcasing artisan e-commerce platform',
     tags: ['E-commerce', 'Crafts', 'Mobile Money'],
   },
@@ -195,7 +217,8 @@ export const SHOWCASE_PROJECTS: ShowcaseProject[] = [
     marks: 93,
     evaluation: 'distinction',
     rankLabel: '#1 · Civic Tech',
-    imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=1200&q=80',
+    imageUrl: pexelsImage(8460504),
+    portraitUrl: pexelsPortrait(8460504),
     imageAlt: 'IUC student Ibrahim Mohamadou working on a civic water-reporting platform',
     tags: ['Civic tech', 'GIS', 'Community'],
   },
